@@ -3,6 +3,7 @@ package git.shrimp.maple_helper.ability.service
 import git.shrimp.maple_helper.ability.data.AbilityWeightRepository
 import git.shrimp.maple_helper.ability.model.AbilityOption
 import git.shrimp.maple_helper.ability.model.AbilityWeight
+import git.shrimp.maple_helper.global.model.OptionLevel
 import org.springframework.stereotype.Service
 
 @Service
@@ -30,7 +31,7 @@ class MapleAbilityService(
     }
 
     private fun getLegendaryOption(): AbilityOption {
-        val legendaryOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.LEGENDARY)
+        val legendaryOptions = this.abilityWeightRepository.getItems(OptionLevel.LEGENDARY)
         val totalLegendaryWeight = legendaryOptions.sumOf { it.weight }
 
         val random = this.getRandom(totalLegendaryWeight)
@@ -40,7 +41,7 @@ class MapleAbilityService(
     private fun getUniqueOption(
         withoutOptions: List<AbilityOption>
     ): AbilityOption {
-        val uniqueOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.UNIQUE, withoutOptions)
+        val uniqueOptions = this.abilityWeightRepository.getItems(OptionLevel.UNIQUE, withoutOptions)
         val totalUniqueWeight = uniqueOptions.sumOf { it.weight }
 
         val random = this.getRandom(totalUniqueWeight)
@@ -50,7 +51,7 @@ class MapleAbilityService(
     private fun getEpicOption(
         withoutOptions: List<AbilityOption>
     ): AbilityOption {
-        val epicOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.EPIC, withoutOptions)
+        val epicOptions = this.abilityWeightRepository.getItems(OptionLevel.EPIC, withoutOptions)
         val totalEpicWeight = epicOptions.sumOf { it.weight }
 
         val random = this.getRandom(totalEpicWeight)
