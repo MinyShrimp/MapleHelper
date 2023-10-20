@@ -9,16 +9,6 @@ import org.springframework.stereotype.Service
 class MapleAbilityService(
     private val abilityWeightRepository: AbilityWeightRepository
 ) {
-    private val legendaryOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.LEGENDARY)
-    private val totalLegendaryWeight = this.abilityWeightRepository.getTotalWeight(AbilityWeight.OptionLevel.LEGENDARY)
-
-    private val uniqueOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.UNIQUE)
-    private val totalUniqueWeight = this.abilityWeightRepository.getTotalWeight(AbilityWeight.OptionLevel.UNIQUE)
-
-    private val epicOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.EPIC)
-    private val totalEpicWeight = this.abilityWeightRepository.getTotalWeight(AbilityWeight.OptionLevel.EPIC)
-
-
     private fun getRandom(
         maxNumber: Int
     ): Int {
@@ -40,28 +30,48 @@ class MapleAbilityService(
     }
 
     private fun getLegendaryOption(): AbilityOption {
-        val random = this.getRandom(this.totalLegendaryWeight)
-        return this.getOption(this.legendaryOptions, random)
+        val legendaryOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.LEGENDARY)
+        val totalLegendaryWeight = legendaryOptions.sumOf { it.weight }
+
+        val random = this.getRandom(totalLegendaryWeight)
+        return this.getOption(legendaryOptions, random)
     }
 
-    private fun getUniqueOption(): AbilityOption {
-        val random = this.getRandom(this.totalUniqueWeight)
-        return this.getOption(this.uniqueOptions, random)
+    private fun getUniqueOption(
+        withoutOptions: List<AbilityOption>
+    ): AbilityOption {
+        val uniqueOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.UNIQUE, withoutOptions)
+        val totalUniqueWeight = uniqueOptions.sumOf { it.weight }
+
+        val random = this.getRandom(totalUniqueWeight)
+        return this.getOption(uniqueOptions, random)
     }
 
-    private fun getEpicOption(): AbilityOption {
-        val random = this.getRandom(this.totalEpicWeight)
-        return this.getOption(this.epicOptions, random)
+    private fun getEpicOption(
+        withoutOptions: List<AbilityOption>
+    ): AbilityOption {
+        val epicOptions = this.abilityWeightRepository.getItems(AbilityWeight.OptionLevel.EPIC, withoutOptions)
+        val totalEpicWeight = epicOptions.sumOf { it.weight }
+
+        val random = this.getRandom(totalEpicWeight)
+        return this.getOption(epicOptions, random)
+    }
+
+    private fun getMainOption(): AbilityOption {
+        return this.getLegendaryOption()
+    }
+
+    private fun getSubOption(
+        options: List<AbilityOption>
+    ): AbilityOption {
+        val random = this.getRandom(100)
+        return if(random < 15) { this.getUniqueOption(options) } else { this.getEpicOption(options) }
     }
 
     fun getOption(): List<AbilityOption> {
-        val firstOption = this.getLegendaryOption()
-
-        val random = this.getRandom(100)
-        val secondOption = if(random < 15) { this.getUniqueOption() } else { this.getEpicOption() }
-
-        val random2 = this.getRandom(100)
-        val thirdOption = if(random2 < 15) { this.getUniqueOption() } else { this.getEpicOption() }
+        val firstOption = this.getMainOption()
+        val secondOption = this.getSubOption(listOf(firstOption))
+        val thirdOption = this.getSubOption(listOf(firstOption, secondOption))
 
         return listOf(firstOption, secondOption, thirdOption)
     }

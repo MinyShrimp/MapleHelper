@@ -1,5 +1,6 @@
 package git.shrimp.maple_helper.ability.data
 
+import git.shrimp.maple_helper.ability.model.AbilityOption
 import git.shrimp.maple_helper.ability.model.AbilityWeight
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -200,18 +201,15 @@ class AbilityWeightRepository(
     }
 
     fun getItems(
-        rarity: AbilityWeight.OptionLevel? = null
+        rarity: AbilityWeight.OptionLevel? = null,
+        withoutOptions: List<AbilityOption> = listOf()
     ): List<AbilityWeight> {
-        return if(rarity == null) {
-            table.values.toList()
-        } else {
-            table.values.filter { it.level == rarity }.toList()
-        }
-    }
+        val withoutIds = withoutOptions.map { it.id }
 
-    fun getTotalWeight(
-        rarity: AbilityWeight.OptionLevel
-    ): Int {
-        return this.getItems(rarity).sumOf { it.weight }
+        return if(rarity == null) {
+            table.values.filter { !withoutIds.contains(it.option.id) }.toList()
+        } else {
+            table.values.filter { !withoutIds.contains(it.option.id) }.filter { it.level == rarity }.toList()
+        }
     }
 }
