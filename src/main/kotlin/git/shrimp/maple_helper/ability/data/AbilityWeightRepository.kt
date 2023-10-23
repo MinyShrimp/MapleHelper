@@ -186,10 +186,10 @@ class AbilityWeightRepository(
         this.add(40, OptionLevel.LEGENDARY, 324)
     }
 
-    fun add(
+    private fun add(
         abilityWeight: AbilityWeight
     ) {
-        table[abilityWeight.id] = abilityWeight
+        this.table[abilityWeight.id] = abilityWeight
     }
 
     fun add(
@@ -206,11 +206,14 @@ class AbilityWeightRepository(
         withoutOptions: List<AbilityOption> = listOf()
     ): List<AbilityWeight> {
         val withoutIds = withoutOptions.map { it.id }
+        val filteredTable = this.table.values
+            .filter { it.weight != 0 }
+            .filter { !withoutIds.contains(it.option.id) }
 
         return if(rarity == null) {
-            table.values.filter { !withoutIds.contains(it.option.id) }.toList()
+            filteredTable.toList()
         } else {
-            table.values.filter { !withoutIds.contains(it.option.id) }.filter { it.level == rarity }.toList()
+            filteredTable.filter { it.level == rarity }.toList()
         }
     }
 }

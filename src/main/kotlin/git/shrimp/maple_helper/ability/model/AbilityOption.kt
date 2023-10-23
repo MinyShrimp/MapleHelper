@@ -1,6 +1,6 @@
 package git.shrimp.maple_helper.ability.model
 
-class AbilityOption(
+open class AbilityOption(
     val id: Int,
     val name: String
 ) {

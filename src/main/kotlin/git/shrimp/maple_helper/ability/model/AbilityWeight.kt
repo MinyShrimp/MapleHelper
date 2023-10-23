@@ -3,7 +3,7 @@ package git.shrimp.maple_helper.ability.model
 import git.shrimp.maple_helper.global.model.OptionLevel
 import java.util.UUID
 
-class AbilityWeight private constructor(
+open class AbilityWeight protected constructor(
     val id: UUID,
     val level: OptionLevel,
     val weight: Int,
