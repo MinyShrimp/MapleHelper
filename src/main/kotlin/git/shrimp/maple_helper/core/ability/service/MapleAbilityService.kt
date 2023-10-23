@@ -52,7 +52,7 @@ class MapleAbilityService(
         numerics: List<AbilityNumeric>,
         mode: AbilityMode
     ): Array<Int> {
-        return when(mode) {
+        return when (mode) {
             AbilityMode.NORMAL -> (this.getRandomWeight(numerics) as AbilityNumeric).numeric
             AbilityMode.MIRACLE -> numerics.last().numeric
         }
@@ -79,48 +79,70 @@ class MapleAbilityService(
 
     private fun getMainOption(
         mainLevel: OptionLevel,
-        mode: AbilityMode
+        mode: AbilityMode,
+        withoutOptions: List<AbilityOption>
     ): AbilityResult {
-        return this.getResult(mainLevel, mode)
+        return this.getResult(mainLevel, mode, withoutOptions)
     }
 
     private fun getSubOption(
         mainLevel: OptionLevel,
         mode: AbilityMode,
-        options: List<AbilityOption>
+        withoutOptions: List<AbilityOption>
     ): AbilityResult {
         val random = this.getRandom(100)
 
-        return when(mainLevel) {
-            OptionLevel.LEGENDARY -> if(random < 15) { this.getResult(OptionLevel.UNIQUE, mode, options) } else { this.getResult(OptionLevel.EPIC, mode, options) }
-            OptionLevel.UNIQUE -> if(random < 30) { this.getResult(OptionLevel.EPIC, mode, options) } else { this.getResult(OptionLevel.RARE, mode, options) }
-            else -> this.getResult(OptionLevel.RARE, mode, options)
+        return when (mainLevel) {
+            OptionLevel.LEGENDARY -> if (random < 15) {
+                this.getResult(OptionLevel.UNIQUE, mode, withoutOptions)
+            } else {
+                this.getResult(OptionLevel.EPIC, mode, withoutOptions)
+            }
+
+            OptionLevel.UNIQUE -> if (random < 30) {
+                this.getResult(OptionLevel.EPIC, mode, withoutOptions)
+            } else {
+                this.getResult(OptionLevel.RARE, mode, withoutOptions)
+            }
+
+            else -> this.getResult(OptionLevel.RARE, mode, withoutOptions)
         }
     }
 
     fun getOption(
         mainLevel: OptionLevel = OptionLevel.LEGENDARY,
-        mode: AbilityMode = AbilityMode.NORMAL
+        mode: AbilityMode = AbilityMode.NORMAL,
+        locks: List<AbilityResult> = listOf()
     ): List<AbilityResult> {
         val result = mutableListOf<AbilityResult>()
+        result.addAll(locks)
 
-        result.add(this.getMainOption(mainLevel, mode))
-        result.add(this.getSubOption(mainLevel, mode, result))
-        result.add(this.getSubOption(mainLevel, mode, result))
+        if (locks.find { it.level == mainLevel } == null) {
+            result.add(this.getMainOption(mainLevel, mode, result))
+        }
 
+        if (locks.find { it.level != mainLevel } == null) {
+            result.add(this.getSubOption(mainLevel, mode, result))
+            result.add(this.getSubOption(mainLevel, mode, result))
+        } else {
+            result.add(this.getSubOption(mainLevel, mode, result))
+        }
+
+        result.sortByDescending { it.level.ordinal }
         return result.toList()
     }
 
-    private suspend fun simulation(
-        target: AbilityResult,
-        option: SimulationOption
+    private suspend fun simulate(
+        option: SimulationOption,
+        targets: List<AbilityResult>,
+        locks: List<AbilityResult>
     ): List<SimulationResult> {
         val simulationResults = mutableListOf<SimulationResult>()
-        for(index in 0 until option.maxCount) {
+        for (index in 0 until option.maxCount) {
             run loop@{
-                for(c in 0 until 100000) {
-                    val results = this.getOption(option.mainLevel, option.mode)
-                    if (results.contains(target)) {
+                for (c in 0 until 100000) {
+                    val results = this.getOption(option.mainLevel, option.mode, locks)
+                    if (results.any { targets.contains(it) }) {
                         simulationResults.add(SimulationResult(c, results))
                         return@loop
                     }
@@ -132,22 +154,35 @@ class MapleAbilityService(
         return simulationResults.toList()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun simulation(
-        targetDto: TargetDto,
-        option: SimulationOption
-    ): List<SimulationResult> {
-        val targetBase = this.abilityOptionRepository.get(targetDto.id)
-        val target = AbilityResult(
-            id = targetBase.id,
-            name = targetBase.name,
+    private fun convertTargetDtoToAbilityResult(
+        targetDto: TargetDto
+    ): AbilityResult {
+        val option = this.abilityOptionRepository.get(targetDto.id)
+
+        return AbilityResult(
+            id = option.id,
+            name = option.name,
             level = targetDto.level,
             numeric = targetDto.numeric,
         )
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun simulation(
+        option: SimulationOption,
+        targetDtoList: List<TargetDto>,
+        lockDtoList: List<TargetDto> = listOf()
+    ): List<SimulationResult> {
+        if (lockDtoList.count() > 2) {
+            throw Exception("Lock count must be less than 2")
+        }
+
+        val targets = targetDtoList.map { this.convertTargetDtoToAbilityResult(it) }
+        val locks = lockDtoList.map { this.convertTargetDtoToAbilityResult(it) }
 
         val diff = option.maxCount / 1000
         return GlobalScope.async {
-            val simulationResults = (0 until 1000).map { async { simulation(target, option.copy(maxCount = diff)) } }
+            val simulationResults = (0 until 1000).map { async { simulate(option.copy(maxCount = diff), targets, locks) } }
             simulationResults.flatMap { it.await() }
         }.await()
     }

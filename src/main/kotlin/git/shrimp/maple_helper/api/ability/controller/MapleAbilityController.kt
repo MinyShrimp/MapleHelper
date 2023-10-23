@@ -20,6 +20,6 @@ class MapleAbilityController(
         val targetDto = TargetDto(8, OptionLevel.UNIQUE, arrayOf(20))
         val option = SimulationOption(10000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
-        return mapleAbilityService.simulation(targetDto, option)
+        return mapleAbilityService.simulation(option, listOf(targetDto))
     }
 }
