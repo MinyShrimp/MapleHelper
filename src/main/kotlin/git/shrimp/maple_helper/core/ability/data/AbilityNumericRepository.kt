@@ -3,13 +3,12 @@ package git.shrimp.maple_helper.core.ability.data
 import git.shrimp.maple_helper.core.ability.model.AbilityNumeric
 import git.shrimp.maple_helper.core.global.model.OptionLevel
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class AbilityNumericRepository(
     private val abilityOptionRepository: AbilityOptionRepository
 ) {
-    private val table = mutableMapOf<UUID, AbilityNumeric>()
+    private val tableByOption = mutableMapOf<Int, List<AbilityNumeric>>()
 
     init {
         ////////////////////////////////////////////////////////////////
@@ -228,7 +227,7 @@ class AbilityNumericRepository(
     private fun add(
         abilityNumeric: AbilityNumeric
     ) {
-        this.table[abilityNumeric.id] = abilityNumeric
+        this.tableByOption[abilityNumeric.option.id] = this.tableByOption[abilityNumeric.option.id]?.plus(abilityNumeric) ?: listOf(abilityNumeric)
     }
 
     fun add(
@@ -248,6 +247,6 @@ class AbilityNumericRepository(
         id: Int,
         level: OptionLevel
     ): List<AbilityNumeric> {
-        return this.table.values.filter { it.option.id == id && it.level == level }.toList()
+        return this.tableByOption[id]?.filter { it.level == level }?.toList() ?: listOf()
     }
 }

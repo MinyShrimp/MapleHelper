@@ -22,7 +22,7 @@ open class MapleAbilityServiceTest {
     @Test
     fun legendaryTest() {
         println("========================================")
-        for (index in 0..100) {
+        for (index in 0..1000) {
             val options = this.mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
             options.forEach(::println)
             println("========================================")
@@ -45,7 +45,7 @@ open class MapleAbilityServiceTest {
     @Test
     fun simulationTest() = runTest {
         val targetDto = TargetDto(8, OptionLevel.UNIQUE, arrayOf(20))
-        val option = SimulationOption(1000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
+        val option = SimulationOption(10000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
         val simulationResults = mapleAbilityService.simulation(option, listOf(targetDto))
 
@@ -61,7 +61,7 @@ open class MapleAbilityServiceTest {
         for (index in 0..maxCount step diff) {
             val nowCount = simulationResults.count { it.count in index until index + diff }
             val accCount = simulationResults.count { it.count < index + diff }
-            val msg = "count: %4d ~ %4d => %4d (%.2f) %4d (%.2f)".format(
+            val msg = "count: %4d ~ %4d => %4d (%2.2f) %4d (%2.2f)".format(
                 index, index + diff - 1,
                 nowCount, nowCount.toDouble() / total * 100,
                 accCount, accCount.toDouble() / total * 100
@@ -88,14 +88,14 @@ open class MapleAbilityServiceTest {
         val maxCount = simulationResults.maxOf { it.count }
         val averageCount = simulationResults.sumOf { it.count } / total
 
-        println("Final Result => Count: $total")
+        println("Final Result => Total Try Counts: $total")
         println("min: $minCount / max: $maxCount / average: $averageCount")
 
         val diff = 100
         for (index in 0..maxCount step diff) {
             val nowCount = simulationResults.count { it.count in index until index + diff }
             val accCount = simulationResults.count { it.count < index + diff }
-            val msg = "count: %4d ~ %4d => %4d (%.2f) %4d (%.2f)".format(
+            val msg = "try count: %4d ~ %4d => %4d (%2.2f) %4d (%2.2f)".format(
                 index, index + diff - 1,
                 nowCount, nowCount.toDouble() / total * 100,
                 accCount, accCount.toDouble() / total * 100

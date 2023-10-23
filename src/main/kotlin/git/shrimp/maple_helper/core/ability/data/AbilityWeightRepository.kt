@@ -4,26 +4,25 @@ import git.shrimp.maple_helper.core.ability.model.AbilityOption
 import git.shrimp.maple_helper.core.ability.model.AbilityWeight
 import git.shrimp.maple_helper.core.global.model.OptionLevel
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 @Service
 class AbilityWeightRepository(
     private val abilityOptionRepository: AbilityOptionRepository
 ) {
-    private val table = mutableMapOf<UUID, AbilityWeight>()
+    private val tableByRare = mutableMapOf<OptionLevel, List<AbilityWeight>>()
 
     init {
         // RARE
-        this.add(0,  OptionLevel.RARE, 389)
-        this.add(1,  OptionLevel.RARE, 389)
-        this.add(2,  OptionLevel.RARE, 389)
-        this.add(3,  OptionLevel.RARE, 389)
-        this.add(4,  OptionLevel.RARE, 372)
-        this.add(5,  OptionLevel.RARE, 372)
-        this.add(6,  OptionLevel.RARE, 0)
-        this.add(7,  OptionLevel.RARE, 0)
-        this.add(8,  OptionLevel.RARE, 0)
-        this.add(9,  OptionLevel.RARE, 346)
+        this.add(0, OptionLevel.RARE, 389)
+        this.add(1, OptionLevel.RARE, 389)
+        this.add(2, OptionLevel.RARE, 389)
+        this.add(3, OptionLevel.RARE, 389)
+        this.add(4, OptionLevel.RARE, 372)
+        this.add(5, OptionLevel.RARE, 372)
+        this.add(6, OptionLevel.RARE, 0)
+        this.add(7, OptionLevel.RARE, 0)
+        this.add(8, OptionLevel.RARE, 0)
+        this.add(9, OptionLevel.RARE, 346)
         this.add(10, OptionLevel.RARE, 0)
         this.add(11, OptionLevel.RARE, 260)
         this.add(12, OptionLevel.RARE, 260)
@@ -57,16 +56,16 @@ class AbilityWeightRepository(
         this.add(40, OptionLevel.RARE, 389)
 
         // EPIC
-        this.add(0,  OptionLevel.EPIC, 406)
-        this.add(1,  OptionLevel.EPIC, 406)
-        this.add(2,  OptionLevel.EPIC, 406)
-        this.add(3,  OptionLevel.EPIC, 406)
-        this.add(4,  OptionLevel.EPIC, 271)
-        this.add(5,  OptionLevel.EPIC, 271)
-        this.add(6,  OptionLevel.EPIC, 271)
-        this.add(7,  OptionLevel.EPIC, 271)
-        this.add(8,  OptionLevel.EPIC, 180)
-        this.add(9,  OptionLevel.EPIC, 271)
+        this.add(0, OptionLevel.EPIC, 406)
+        this.add(1, OptionLevel.EPIC, 406)
+        this.add(2, OptionLevel.EPIC, 406)
+        this.add(3, OptionLevel.EPIC, 406)
+        this.add(4, OptionLevel.EPIC, 271)
+        this.add(5, OptionLevel.EPIC, 271)
+        this.add(6, OptionLevel.EPIC, 271)
+        this.add(7, OptionLevel.EPIC, 271)
+        this.add(8, OptionLevel.EPIC, 180)
+        this.add(9, OptionLevel.EPIC, 271)
         this.add(10, OptionLevel.EPIC, 0)
         this.add(11, OptionLevel.EPIC, 271)
         this.add(12, OptionLevel.EPIC, 271)
@@ -100,16 +99,16 @@ class AbilityWeightRepository(
         this.add(40, OptionLevel.EPIC, 379)
 
         // UNIQUE
-        this.add(0,  OptionLevel.UNIQUE, 407)
-        this.add(1,  OptionLevel.UNIQUE, 407)
-        this.add(2,  OptionLevel.UNIQUE, 407)
-        this.add(3,  OptionLevel.UNIQUE, 407)
-        this.add(4,  OptionLevel.UNIQUE, 226)
-        this.add(5,  OptionLevel.UNIQUE, 226)
-        this.add(6,  OptionLevel.UNIQUE, 226)
-        this.add(7,  OptionLevel.UNIQUE, 226)
-        this.add(8,  OptionLevel.UNIQUE, 90)
-        this.add(9,  OptionLevel.UNIQUE, 181)
+        this.add(0, OptionLevel.UNIQUE, 407)
+        this.add(1, OptionLevel.UNIQUE, 407)
+        this.add(2, OptionLevel.UNIQUE, 407)
+        this.add(3, OptionLevel.UNIQUE, 407)
+        this.add(4, OptionLevel.UNIQUE, 226)
+        this.add(5, OptionLevel.UNIQUE, 226)
+        this.add(6, OptionLevel.UNIQUE, 226)
+        this.add(7, OptionLevel.UNIQUE, 226)
+        this.add(8, OptionLevel.UNIQUE, 90)
+        this.add(9, OptionLevel.UNIQUE, 181)
         this.add(10, OptionLevel.UNIQUE, 0)
         this.add(11, OptionLevel.UNIQUE, 271)
         this.add(12, OptionLevel.UNIQUE, 271)
@@ -143,16 +142,16 @@ class AbilityWeightRepository(
         this.add(40, OptionLevel.UNIQUE, 362)
 
         // LEGENDARY
-        this.add(0,  OptionLevel.LEGENDARY, 416)
-        this.add(1,  OptionLevel.LEGENDARY, 416)
-        this.add(2,  OptionLevel.LEGENDARY, 416)
-        this.add(3,  OptionLevel.LEGENDARY, 416)
-        this.add(4,  OptionLevel.LEGENDARY, 185)
-        this.add(5,  OptionLevel.LEGENDARY, 185)
-        this.add(6,  OptionLevel.LEGENDARY, 231)
-        this.add(7,  OptionLevel.LEGENDARY, 231)
-        this.add(8,  OptionLevel.LEGENDARY, 46)
-        this.add(9,  OptionLevel.LEGENDARY, 185)
+        this.add(0, OptionLevel.LEGENDARY, 416)
+        this.add(1, OptionLevel.LEGENDARY, 416)
+        this.add(2, OptionLevel.LEGENDARY, 416)
+        this.add(3, OptionLevel.LEGENDARY, 416)
+        this.add(4, OptionLevel.LEGENDARY, 185)
+        this.add(5, OptionLevel.LEGENDARY, 185)
+        this.add(6, OptionLevel.LEGENDARY, 231)
+        this.add(7, OptionLevel.LEGENDARY, 231)
+        this.add(8, OptionLevel.LEGENDARY, 46)
+        this.add(9, OptionLevel.LEGENDARY, 185)
         this.add(10, OptionLevel.LEGENDARY, 46)
         this.add(11, OptionLevel.LEGENDARY, 231)
         this.add(12, OptionLevel.LEGENDARY, 231)
@@ -189,7 +188,7 @@ class AbilityWeightRepository(
     private fun add(
         abilityWeight: AbilityWeight
     ) {
-        this.table[abilityWeight.id] = abilityWeight
+        this.tableByRare[abilityWeight.level] = this.tableByRare[abilityWeight.level]?.plus(abilityWeight) ?: listOf(abilityWeight)
     }
 
     fun add(
@@ -197,23 +196,18 @@ class AbilityWeightRepository(
         level: OptionLevel,
         weight: Int
     ) {
+        if (weight <= 0) return
+
         val option = this.abilityOptionRepository.get(id)
         this.add(AbilityWeight(level, weight, option))
     }
 
     fun getItems(
-        rarity: OptionLevel? = null,
+        rarity: OptionLevel,
         withoutOptions: List<AbilityOption> = listOf()
     ): List<AbilityWeight> {
         val withoutIds = withoutOptions.map { it.id }
-        val filteredTable = this.table.values
-            .filter { it.weight != 0 }
-            .filter { !withoutIds.contains(it.option.id) }
 
-        return if(rarity == null) {
-            filteredTable.toList()
-        } else {
-            filteredTable.filter { it.level == rarity }.toList()
-        }
+        return this.tableByRare[rarity]?.filterNot { withoutIds.contains(it.option.id) } ?: listOf()
     }
 }
