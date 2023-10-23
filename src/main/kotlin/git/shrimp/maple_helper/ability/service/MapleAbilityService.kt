@@ -1,17 +1,25 @@
 package git.shrimp.maple_helper.ability.service
 
 import git.shrimp.maple_helper.ability.data.AbilityNumericRepository
+import git.shrimp.maple_helper.ability.data.AbilityOptionRepository
 import git.shrimp.maple_helper.ability.data.AbilityWeightRepository
 import git.shrimp.maple_helper.ability.dto.AbilityResult
+import git.shrimp.maple_helper.ability.dto.SimulationOption
+import git.shrimp.maple_helper.ability.dto.SimulationResult
+import git.shrimp.maple_helper.ability.dto.TargetDto
 import git.shrimp.maple_helper.ability.model.AbilityMode
 import git.shrimp.maple_helper.ability.model.AbilityNumeric
 import git.shrimp.maple_helper.ability.model.AbilityOption
 import git.shrimp.maple_helper.ability.model.AbilityWeight
 import git.shrimp.maple_helper.global.model.OptionLevel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.springframework.stereotype.Service
 
 @Service
 class MapleAbilityService(
+    private val abilityOptionRepository: AbilityOptionRepository,
     private val abilityWeightRepository: AbilityWeightRepository,
     private val abilityNumericRepository: AbilityNumericRepository
 ) {
@@ -101,5 +109,46 @@ class MapleAbilityService(
         result.add(this.getSubOption(mainLevel, mode, result))
 
         return result.toList()
+    }
+
+    private suspend fun simulation(
+        target: AbilityResult,
+        option: SimulationOption
+    ): List<SimulationResult> {
+        val simulationResults = mutableListOf<SimulationResult>()
+        for(index in 0 until option.maxCount) {
+            run loop@{
+                for(c in 0 until 100000) {
+                    val results = this.getOption(option.mainLevel, option.mode)
+                    if (results.contains(target)) {
+                        simulationResults.add(SimulationResult(c, results))
+                        return@loop
+                    }
+                }
+                simulationResults.add(SimulationResult(option.maxCount, listOf()))
+            }
+        }
+
+        return simulationResults.toList()
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun simulation(
+        targetDto: TargetDto,
+        option: SimulationOption
+    ): List<SimulationResult> {
+        val targetBase = this.abilityOptionRepository.get(targetDto.id)
+        val target = AbilityResult(
+            id = targetBase.id,
+            name = targetBase.name,
+            level = targetDto.level,
+            numeric = targetDto.numeric,
+        )
+
+        val diff = option.maxCount / 1000
+        return GlobalScope.async {
+            val simulationResults = (0 until 1000).map { async { simulation(target, option.copy(maxCount = diff)) } }
+            simulationResults.flatMap { it.await() }
+        }.await()
     }
 }

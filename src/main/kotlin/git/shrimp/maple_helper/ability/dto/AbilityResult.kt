@@ -23,6 +23,28 @@ class AbilityResult(
         }
 
     override fun toString(): String {
-        return "ID: %2d, [%9s] %s".format(this.id, this.level, this.text)
+        return "[%9s] %s".format(this.level, this.text)
+    }
+
+    override fun hashCode(): Int {
+        var hash = 17
+        hash = hash * 31 + this.id
+        hash = hash * 31 + this.level.ordinal
+        for (n in this.numeric) {
+            hash = hash * 31 + n
+        }
+
+        return hash
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when(other) {
+            is AbilityResult -> {
+                this.id == other.id &&
+                this.level == other.level &&
+                this.numeric.contentEquals(other.numeric)
+            }
+            else -> false
+        }
     }
 }
