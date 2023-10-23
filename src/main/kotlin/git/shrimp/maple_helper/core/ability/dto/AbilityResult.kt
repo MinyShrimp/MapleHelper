@@ -1,7 +1,7 @@
-package git.shrimp.maple_helper.ability.dto
+package git.shrimp.maple_helper.core.ability.dto
 
-import git.shrimp.maple_helper.ability.model.AbilityOption
-import git.shrimp.maple_helper.global.model.OptionLevel
+import git.shrimp.maple_helper.core.ability.model.AbilityOption
+import git.shrimp.maple_helper.core.global.model.OptionLevel
 
 class AbilityResult(
     id: Int,

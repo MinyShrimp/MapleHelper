@@ -1,6 +1,6 @@
-package git.shrimp.maple_helper.ability.data
+package git.shrimp.maple_helper.core.ability.data
 
-import git.shrimp.maple_helper.ability.model.AbilityOption
+import git.shrimp.maple_helper.core.ability.model.AbilityOption
 import org.springframework.stereotype.Service
 
 @Service

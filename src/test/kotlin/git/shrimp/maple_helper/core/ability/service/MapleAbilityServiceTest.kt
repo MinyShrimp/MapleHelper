@@ -1,15 +1,16 @@
-package git.shrimp.maple_helper.ability.service
+package git.shrimp.maple_helper.core.ability.service
 
-import git.shrimp.maple_helper.ability.data.AbilityNumericRepository
-import git.shrimp.maple_helper.ability.data.AbilityOptionRepository
-import git.shrimp.maple_helper.ability.data.AbilityWeightRepository
-import git.shrimp.maple_helper.ability.dto.AbilityResult
-import git.shrimp.maple_helper.ability.dto.SimulationOption
-import git.shrimp.maple_helper.ability.dto.SimulationResult
-import git.shrimp.maple_helper.ability.dto.TargetDto
-import git.shrimp.maple_helper.ability.model.AbilityMode
-import git.shrimp.maple_helper.ability.model.AbilityWeight
-import git.shrimp.maple_helper.global.model.OptionLevel
+import git.shrimp.maple_helper.core.ability.data.AbilityNumericRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityOptionRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityWeightRepository
+import git.shrimp.maple_helper.core.ability.dto.AbilityResult
+import git.shrimp.maple_helper.core.ability.dto.SimulationOption
+import git.shrimp.maple_helper.core.ability.dto.SimulationResult
+import git.shrimp.maple_helper.core.ability.dto.TargetDto
+import git.shrimp.maple_helper.core.ability.model.AbilityMode
+import git.shrimp.maple_helper.core.ability.model.AbilityWeight
+import git.shrimp.maple_helper.core.ability.service.MapleAbilityService
+import git.shrimp.maple_helper.core.global.model.OptionLevel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.AfterEach
@@ -60,7 +61,7 @@ open class MapleAbilityServiceTest {
         println("Final Result => Count: $total")
         println("min: $minCount / max: $maxCount / average: $averageCount")
 
-        val diff = 100 //(maxCount - minCount) / 9
+        val diff = 100
         for (index in 0..maxCount step diff) {
             val nowCount = simulationResults.count { it.count in index until index + diff }
             val accCount = simulationResults.count { it.count < index + diff }

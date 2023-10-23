@@ -1,8 +1,8 @@
-package git.shrimp.maple_helper.ability.data
+package git.shrimp.maple_helper.core.ability.data
 
-import git.shrimp.maple_helper.ability.model.AbilityOption
-import git.shrimp.maple_helper.ability.model.AbilityWeight
-import git.shrimp.maple_helper.global.model.OptionLevel
+import git.shrimp.maple_helper.core.ability.model.AbilityOption
+import git.shrimp.maple_helper.core.ability.model.AbilityWeight
+import git.shrimp.maple_helper.core.global.model.OptionLevel
 import org.springframework.stereotype.Service
 import java.util.UUID
 

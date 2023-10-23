@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper.ability.model
+package git.shrimp.maple_helper.core.ability.model
 
 open class AbilityOption(
     val id: Int,
