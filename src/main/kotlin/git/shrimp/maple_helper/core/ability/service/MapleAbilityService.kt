@@ -180,7 +180,7 @@ class MapleAbilityService(
         val targets = targetDtoList.map { this.convertTargetDtoToAbilityResult(it) }
         val locks = lockDtoList.map { this.convertTargetDtoToAbilityResult(it) }
 
-        val batch = 5000
+        val batch = 100
         val diff = option.maxCount / batch
         return GlobalScope.async {
             val simulationResults = (0 until batch).map { async { simulate(option.copy(maxCount = diff), targets, locks) } }
