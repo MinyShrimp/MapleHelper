@@ -1,10 +1,17 @@
+### Gradle ###
 HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+### Project ###
 *.properties
+
+### Database ###
+db/config/
+db/mysql/
 
 ### STS ###
 .apt_generated
