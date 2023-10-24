@@ -28,7 +28,8 @@ allOpen {
 
 dependencies {
     // Discord
-    implementation('com.discord4j:discord4j-core:3.2.6')
+//    implementation('com.discord4j:discord4j-core:3.2.6')
+    implementation 'net.dv8tion:JDA:5.0.0-beta.16'
 
     // Kotlin
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
