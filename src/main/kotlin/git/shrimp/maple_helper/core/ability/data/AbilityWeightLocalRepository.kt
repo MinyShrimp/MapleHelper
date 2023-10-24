@@ -6,8 +6,8 @@ import git.shrimp.maple_helper.core.global.model.OptionLevel
 import org.springframework.stereotype.Service
 
 @Service
-class AbilityWeightRepository(
-    private val abilityOptionRepository: AbilityOptionRepository
+class AbilityWeightLocalRepository(
+    private val abilityOptionLocalRepository: AbilityOptionLocalRepository
 ) {
     private val tableByRare = mutableMapOf<OptionLevel, List<AbilityWeight>>()
 
@@ -188,7 +188,8 @@ class AbilityWeightRepository(
     private fun add(
         abilityWeight: AbilityWeight
     ) {
-        this.tableByRare[abilityWeight.level] = this.tableByRare[abilityWeight.level]?.plus(abilityWeight) ?: listOf(abilityWeight)
+        this.tableByRare[abilityWeight.level] =
+            this.tableByRare[abilityWeight.level]?.plus(abilityWeight) ?: listOf(abilityWeight)
     }
 
     fun add(
@@ -198,7 +199,7 @@ class AbilityWeightRepository(
     ) {
         if (weight <= 0) return
 
-        val option = this.abilityOptionRepository.get(id)
+        val option = this.abilityOptionLocalRepository.get(id)
         this.add(AbilityWeight(level, weight, option))
     }
 

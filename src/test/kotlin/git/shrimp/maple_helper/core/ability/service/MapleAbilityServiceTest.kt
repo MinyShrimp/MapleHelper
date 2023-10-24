@@ -1,8 +1,8 @@
 package git.shrimp.maple_helper.core.ability.service
 
-import git.shrimp.maple_helper.core.ability.data.AbilityNumericRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityOptionRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityWeightRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityNumericLocalRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityOptionLocalRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityWeightLocalRepository
 import git.shrimp.maple_helper.core.ability.dto.AbilityResult
 import git.shrimp.maple_helper.core.ability.dto.SimulationOption
 import git.shrimp.maple_helper.core.ability.dto.TargetDto
@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 open class MapleAbilityServiceTest {
-    private val abilityOptionRepository = AbilityOptionRepository()
-    private val abilityWeightRepository = AbilityWeightRepository(abilityOptionRepository)
-    private val abilityNumericRepository = AbilityNumericRepository(abilityOptionRepository)
+    private val abilityOptionLocalRepository = AbilityOptionLocalRepository()
+    private val abilityWeightLocalRepository = AbilityWeightLocalRepository(abilityOptionLocalRepository)
+    private val abilityNumericLocalRepository = AbilityNumericLocalRepository(abilityOptionLocalRepository)
     private val mapleAbilityService =
-        MapleAbilityService(abilityOptionRepository, abilityWeightRepository, abilityNumericRepository)
+        MapleAbilityService(abilityOptionLocalRepository, abilityWeightLocalRepository, abilityNumericLocalRepository)
 
     @Test
     fun legendaryTest() {

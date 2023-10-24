@@ -1,8 +1,8 @@
 package git.shrimp.maple_helper.core.ability.service
 
-import git.shrimp.maple_helper.core.ability.data.AbilityNumericRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityOptionRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityWeightRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityNumericLocalRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityOptionLocalRepository
+import git.shrimp.maple_helper.core.ability.data.AbilityWeightLocalRepository
 import git.shrimp.maple_helper.core.ability.dto.AbilityResult
 import git.shrimp.maple_helper.core.ability.dto.SimulationOption
 import git.shrimp.maple_helper.core.ability.dto.SimulationResult
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class MapleAbilityService(
-    private val abilityOptionRepository: AbilityOptionRepository,
-    private val abilityWeightRepository: AbilityWeightRepository,
-    private val abilityNumericRepository: AbilityNumericRepository
+    private val abilityOptionLocalRepository: AbilityOptionLocalRepository,
+    private val abilityWeightLocalRepository: AbilityWeightLocalRepository,
+    private val abilityNumericLocalRepository: AbilityNumericLocalRepository
 ) {
     private fun getRandom(
         maxNumber: Int
@@ -63,10 +63,10 @@ class MapleAbilityService(
         mode: AbilityMode,
         withoutOptions: List<AbilityOption> = listOf()
     ): AbilityResult {
-        val weights = this.abilityWeightRepository.getItems(level, withoutOptions)
+        val weights = this.abilityWeightLocalRepository.getItems(level, withoutOptions)
         val option = this.getOption(weights.shuffled())
 
-        val numerics = this.abilityNumericRepository.getItems(option.id, level)
+        val numerics = this.abilityNumericLocalRepository.getItems(option.id, level)
         val numeric = this.getNumeric(numerics, mode)
 
         return AbilityResult(
@@ -157,7 +157,7 @@ class MapleAbilityService(
     private fun convertTargetDtoToAbilityResult(
         targetDto: TargetDto
     ): AbilityResult {
-        val option = this.abilityOptionRepository.get(targetDto.id)
+        val option = this.abilityOptionLocalRepository.get(targetDto.id)
 
         return AbilityResult(
             id = option.id,

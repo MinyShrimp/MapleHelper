@@ -5,8 +5,8 @@ import git.shrimp.maple_helper.core.global.model.OptionLevel
 import org.springframework.stereotype.Service
 
 @Service
-class AbilityNumericRepository(
-    private val abilityOptionRepository: AbilityOptionRepository
+class AbilityNumericLocalRepository(
+    private val abilityOptionLocalRepository: AbilityOptionLocalRepository
 ) {
     private val tableByOption = mutableMapOf<Int, List<AbilityNumeric>>()
 
@@ -248,7 +248,7 @@ class AbilityNumericRepository(
         level: OptionLevel,
         numerics: List<List<Int>>
     ) {
-        val option = this.abilityOptionRepository.get(id)
+        val option = this.abilityOptionLocalRepository.get(id)
         val weights = listOf(20, 20, 20, 15, 15, 10)
 
         numerics.zip(weights).forEach { (numeric, weight) ->

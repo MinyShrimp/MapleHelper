@@ -4,7 +4,7 @@ import git.shrimp.maple_helper.core.ability.model.AbilityOption
 import org.springframework.stereotype.Service
 
 @Service
-class AbilityOptionRepository {
+class AbilityOptionLocalRepository {
     private val table = mutableMapOf<Int, AbilityOption>()
 
     init {
