@@ -7,8 +7,8 @@ class AbilityResult(
     id: Int,
     name: String,
     val level: OptionLevel,
-    val numeric: Array<Int>,
-): AbilityOption(id, name) {
+    val numeric: List<Int>,
+) : AbilityOption(id, name) {
     companion object {
         private val regex = Regex("\\{\\d+\\}")
     }
@@ -38,12 +38,13 @@ class AbilityResult(
     }
 
     override fun equals(other: Any?): Boolean {
-        return when(other) {
+        return when (other) {
             is AbilityResult -> {
-                this.id == other.id &&
-                this.level == other.level &&
-                this.numeric.contentEquals(other.numeric)
+                this.id == other.id
+                        && this.level == other.level
+                        && this.numeric.toSet() == other.numeric.toSet()
             }
+
             else -> false
         }
     }

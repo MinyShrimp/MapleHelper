@@ -17,13 +17,15 @@ open class MapleAbilityServiceTest {
     private val abilityOptionRepository = AbilityOptionRepository()
     private val abilityWeightRepository = AbilityWeightRepository(abilityOptionRepository)
     private val abilityNumericRepository = AbilityNumericRepository(abilityOptionRepository)
-    private val mapleAbilityService = MapleAbilityService(abilityOptionRepository, abilityWeightRepository, abilityNumericRepository)
+    private val mapleAbilityService =
+        MapleAbilityService(abilityOptionRepository, abilityWeightRepository, abilityNumericRepository)
 
     @Test
     fun legendaryTest() {
         println("========================================")
         for (index in 0..1000) {
-            val options = this.mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
+            val options =
+                this.mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
             options.forEach(::println)
             println("========================================")
         }
@@ -35,7 +37,7 @@ open class MapleAbilityServiceTest {
         for (index in 0..100) {
             val options = this.mapleAbilityService.getOption(
                 mainLevel = OptionLevel.LEGENDARY,
-                locks = listOf(AbilityResult(8, "크리티컬 확률 {0}% 증가", OptionLevel.UNIQUE, arrayOf(20)))
+                locks = listOf(AbilityResult(8, "크리티컬 확률 {0}% 증가", OptionLevel.UNIQUE, listOf(20)))
             )
             options.forEach(::println)
             println("========================================")
@@ -44,7 +46,7 @@ open class MapleAbilityServiceTest {
 
     @Test
     fun simulationTest() = runTest {
-        val targetDto = TargetDto(8, OptionLevel.UNIQUE, arrayOf(20))
+        val targetDto = TargetDto(8, OptionLevel.UNIQUE, listOf(20))
         val option = SimulationOption(2000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
         val simulationResults = mapleAbilityService.simulation(option, listOf(targetDto))
@@ -73,11 +75,11 @@ open class MapleAbilityServiceTest {
     @Test
     fun simulationTest2() = runTest {
         val targets = listOf(
-            TargetDto(28, OptionLevel.LEGENDARY, arrayOf(20))
+            TargetDto(28, OptionLevel.LEGENDARY, listOf(20))
         )
         val locks = listOf(
-            TargetDto(8, OptionLevel.UNIQUE, arrayOf(20)),
-            TargetDto(27, OptionLevel.UNIQUE, arrayOf(15))
+            TargetDto(8, OptionLevel.UNIQUE, listOf(20)),
+            TargetDto(27, OptionLevel.UNIQUE, listOf(15))
         )
         val option = SimulationOption(1000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 

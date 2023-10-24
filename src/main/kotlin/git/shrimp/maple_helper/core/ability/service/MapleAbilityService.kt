@@ -51,10 +51,10 @@ class MapleAbilityService(
     private fun getNumeric(
         numerics: List<AbilityNumeric>,
         mode: AbilityMode
-    ): Array<Int> {
+    ): List<Int> {
         return when (mode) {
-            AbilityMode.NORMAL -> (this.getRandomWeight(numerics) as AbilityNumeric).numeric
-            AbilityMode.MIRACLE -> numerics.last().numeric
+            AbilityMode.NORMAL -> (this.getRandomWeight(numerics) as AbilityNumeric).numerics
+            AbilityMode.MIRACLE -> numerics.last().numerics
         }
     }
 
@@ -183,7 +183,8 @@ class MapleAbilityService(
         val batch = 100
         val diff = option.maxCount / batch
         return GlobalScope.async {
-            val simulationResults = (0 until batch).map { async { simulate(option.copy(maxCount = diff), targets, locks) } }
+            val simulationResults =
+                (0 until batch).map { async { simulate(option.copy(maxCount = diff), targets, locks) } }
             simulationResults.flatMap { it.await() }
         }.await()
     }
