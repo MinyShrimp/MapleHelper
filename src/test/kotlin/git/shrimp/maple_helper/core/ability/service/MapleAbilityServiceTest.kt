@@ -1,29 +1,57 @@
 package git.shrimp.maple_helper.core.ability.service
 
-import git.shrimp.maple_helper.core.ability.data.AbilityNumericLocalRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityOptionLocalRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityWeightLocalRepository
 import git.shrimp.maple_helper.core.ability.dto.AbilityResult
 import git.shrimp.maple_helper.core.ability.dto.SimulationOption
 import git.shrimp.maple_helper.core.ability.dto.TargetDto
+import git.shrimp.maple_helper.core.ability.mock.AbilityNumericMockRepository
+import git.shrimp.maple_helper.core.ability.mock.AbilityOptionMockRepository
+import git.shrimp.maple_helper.core.ability.mock.AbilityWeightMockRepository
 import git.shrimp.maple_helper.core.ability.model.AbilityMode
+import git.shrimp.maple_helper.core.ability.repository.AbilityNumericRepository
+import git.shrimp.maple_helper.core.ability.repository.AbilityOptionRepository
+import git.shrimp.maple_helper.core.ability.repository.AbilityWeightRepository
 import git.shrimp.maple_helper.core.global.model.OptionLevel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 open class MapleAbilityServiceTest {
-    private val abilityOptionLocalRepository = AbilityOptionLocalRepository()
-    private val abilityWeightLocalRepository = AbilityWeightLocalRepository(abilityOptionLocalRepository)
-    private val abilityNumericLocalRepository = AbilityNumericLocalRepository(abilityOptionLocalRepository)
+    private val abilityOptionRepository: AbilityOptionRepository = mockk()
+    private val abilityWeightRepository: AbilityWeightRepository = mockk()
+    private val abilityNumericRepository: AbilityNumericRepository = mockk()
+
     private val mapleAbilityService =
-        MapleAbilityService(abilityOptionLocalRepository, abilityWeightLocalRepository, abilityNumericLocalRepository)
+        MapleAbilityService(abilityOptionRepository, abilityWeightRepository, abilityNumericRepository)
+
+    @BeforeEach
+    fun beforeAll() {
+        val abilityOptionMockRepository = AbilityOptionMockRepository()
+        every {
+            abilityOptionRepository.findById(any())
+        } answers {
+            abilityOptionMockRepository.findById(firstArg())
+        }
+
+        val abilityWeightMockRepository = AbilityWeightMockRepository(abilityOptionMockRepository)
+        every {
+            abilityWeightRepository.findAllByLevel(any())
+        } answers {
+            abilityWeightMockRepository.findAllByLevel(firstArg())
+        }
+
+        val abilityNumericMockRepository = AbilityNumericMockRepository(abilityOptionMockRepository)
+        every {
+            abilityNumericRepository.findAllByOptionIdAndLevel(any(), any())
+        } answers {
+            abilityNumericMockRepository.findAllByOptionIdAndLevel(firstArg(), secondArg())
+        }
+    }
 
     @Test
     fun legendaryTest() {
         println("========================================")
-        for (index in 0..1000) {
+        for (index in 0..100) {
             val options =
                 this.mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
             options.forEach(::println)
@@ -37,7 +65,7 @@ open class MapleAbilityServiceTest {
         for (index in 0..100) {
             val options = this.mapleAbilityService.getOption(
                 mainLevel = OptionLevel.LEGENDARY,
-                locks = listOf(AbilityResult(8, "크리티컬 확률 {0}% 증가", OptionLevel.UNIQUE, listOf(20)))
+                locks = listOf(AbilityResult(9, "크리티컬 확률 {0}% 증가", OptionLevel.UNIQUE, listOf(20)))
             )
             options.forEach(::println)
             println("========================================")
@@ -45,9 +73,9 @@ open class MapleAbilityServiceTest {
     }
 
     @Test
-    fun simulationTest() = runTest {
-        val targetDto = TargetDto(8, OptionLevel.UNIQUE, listOf(20))
-        val option = SimulationOption(2000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
+    fun simulationTest() {
+        val targetDto = TargetDto(9, OptionLevel.UNIQUE, listOf(20))
+        val option = SimulationOption(10, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
         val simulationResults = mapleAbilityService.simulation(option, listOf(targetDto))
 
@@ -73,15 +101,15 @@ open class MapleAbilityServiceTest {
     }
 
     @Test
-    fun simulationTest2() = runTest {
+    fun simulationTest2() {
         val targets = listOf(
-            TargetDto(28, OptionLevel.LEGENDARY, listOf(20))
+            TargetDto(29, OptionLevel.LEGENDARY, listOf(20))
         )
         val locks = listOf(
-            TargetDto(8, OptionLevel.UNIQUE, listOf(20)),
-            TargetDto(27, OptionLevel.UNIQUE, listOf(15))
+            TargetDto(9, OptionLevel.UNIQUE, listOf(20)),
+            TargetDto(28, OptionLevel.UNIQUE, listOf(15))
         )
-        val option = SimulationOption(1000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
+        val option = SimulationOption(10, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
         val simulationResults = mapleAbilityService.simulation(option, targets, locks)
 

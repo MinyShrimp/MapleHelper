@@ -1,8 +1,5 @@
 package git.shrimp.maple_helper.core.ability.service
 
-import git.shrimp.maple_helper.core.ability.data.AbilityNumericLocalRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityOptionLocalRepository
-import git.shrimp.maple_helper.core.ability.data.AbilityWeightLocalRepository
 import git.shrimp.maple_helper.core.ability.dto.AbilityResult
 import git.shrimp.maple_helper.core.ability.dto.SimulationOption
 import git.shrimp.maple_helper.core.ability.dto.SimulationResult
@@ -11,17 +8,18 @@ import git.shrimp.maple_helper.core.ability.model.AbilityMode
 import git.shrimp.maple_helper.core.ability.model.AbilityNumeric
 import git.shrimp.maple_helper.core.ability.model.AbilityOption
 import git.shrimp.maple_helper.core.ability.model.AbilityWeight
+import git.shrimp.maple_helper.core.ability.repository.AbilityNumericRepository
+import git.shrimp.maple_helper.core.ability.repository.AbilityOptionRepository
+import git.shrimp.maple_helper.core.ability.repository.AbilityWeightRepository
 import git.shrimp.maple_helper.core.global.model.OptionLevel
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class MapleAbilityService(
-    private val abilityOptionLocalRepository: AbilityOptionLocalRepository,
-    private val abilityWeightLocalRepository: AbilityWeightLocalRepository,
-    private val abilityNumericLocalRepository: AbilityNumericLocalRepository
+    private val abilityOptionRepository: AbilityOptionRepository,
+    private val abilityWeightRepository: AbilityWeightRepository,
+    private val abilityNumericRepository: AbilityNumericRepository,
 ) {
     private fun getRandom(
         maxNumber: Int
@@ -42,10 +40,10 @@ class MapleAbilityService(
         }!!
     }
 
-    private fun getOption(
+    private fun getOptionId(
         weights: List<AbilityWeight>
-    ): AbilityOption {
-        return this.getRandomWeight(weights).option
+    ): Int {
+        return this.getRandomWeight(weights).optionId
     }
 
     private fun getNumeric(
@@ -63,12 +61,15 @@ class MapleAbilityService(
         mode: AbilityMode,
         withoutOptions: List<AbilityOption> = listOf()
     ): AbilityResult {
-        val weights = this.abilityWeightLocalRepository.getItems(level, withoutOptions)
-        val option = this.getOption(weights.shuffled())
+        val withoutOptionIds = withoutOptions.map { it.id }
+        val weights =
+            this.abilityWeightRepository.findAllByLevel(level).filterNot { withoutOptionIds.contains(it.optionId) }
+        val optionId = this.getOptionId(weights.shuffled())
 
-        val numerics = this.abilityNumericLocalRepository.getItems(option.id, level)
+        val numerics = this.abilityNumericRepository.findAllByOptionIdAndLevel(optionId, level)
         val numeric = this.getNumeric(numerics, mode)
 
+        val option = this.abilityOptionRepository.findById(optionId).orElseThrow()
         return AbilityResult(
             id = option.id,
             name = option.name,
@@ -109,6 +110,7 @@ class MapleAbilityService(
         }
     }
 
+    @Transactional
     fun getOption(
         mainLevel: OptionLevel = OptionLevel.LEGENDARY,
         mode: AbilityMode = AbilityMode.NORMAL,
@@ -132,7 +134,7 @@ class MapleAbilityService(
         return result.toList()
     }
 
-    private suspend fun simulate(
+    private fun simulate(
         option: SimulationOption,
         targets: List<AbilityResult>,
         locks: List<AbilityResult>
@@ -157,7 +159,7 @@ class MapleAbilityService(
     private fun convertTargetDtoToAbilityResult(
         targetDto: TargetDto
     ): AbilityResult {
-        val option = this.abilityOptionLocalRepository.get(targetDto.id)
+        val option = this.abilityOptionRepository.findById(targetDto.id).orElseThrow()
 
         return AbilityResult(
             id = option.id,
@@ -167,8 +169,8 @@ class MapleAbilityService(
         )
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun simulation(
+    @Transactional
+    fun simulation(
         option: SimulationOption,
         targetDtoList: List<TargetDto>,
         lockDtoList: List<TargetDto> = listOf()
@@ -180,12 +182,6 @@ class MapleAbilityService(
         val targets = targetDtoList.map { this.convertTargetDtoToAbilityResult(it) }
         val locks = lockDtoList.map { this.convertTargetDtoToAbilityResult(it) }
 
-        val batch = 100
-        val diff = option.maxCount / batch
-        return GlobalScope.async {
-            val simulationResults =
-                (0 until batch).map { async { simulate(option.copy(maxCount = diff), targets, locks) } }
-            simulationResults.flatMap { it.await() }
-        }.await()
+        return simulate(option, targets, locks)
     }
 }

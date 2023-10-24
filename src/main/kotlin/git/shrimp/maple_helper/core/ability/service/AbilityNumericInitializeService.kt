@@ -17,7 +17,7 @@ class AbilityNumericInitializeService(
         level: OptionLevel,
         numerics: List<List<Int>>
     ) {
-        val option = this.abilityOptionRepository.findById(id).get()
+        val option = this.abilityOptionRepository.findById(id).orElseThrow()
         val weights = listOf(20, 20, 20, 15, 15, 10)
         val entities = numerics.zip(weights).map { (numeric, weight) -> AbilityNumeric(level, weight, option, numeric) }
 

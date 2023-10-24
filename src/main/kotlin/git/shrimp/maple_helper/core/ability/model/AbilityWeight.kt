@@ -5,7 +5,13 @@ import jakarta.persistence.*
 import java.util.*
 
 @Entity
-@Table(name = "ability_weight")
+@Table(
+    name = "ability_weight",
+    indexes = [
+        Index(name = "ability_numeric_option_id_index", columnList = "option_id"),
+        Index(name = "ability_numeric_level_index", columnList = "level")
+    ]
+)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 class AbilityWeight(
     id: UUID,
@@ -29,6 +35,10 @@ class AbilityWeight(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "option_id", nullable = false)
     var option: AbilityOption = option
+        protected set
+
+    @Column(name = "option_id", nullable = false, insertable = false, updatable = false)
+    var optionId: Int = option.id
         protected set
 
     constructor(
