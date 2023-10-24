@@ -123,11 +123,14 @@ class MapleAbilityService(
             result.add(this.getMainOption(mainLevel, mode, result))
         }
 
-        if (locks.find { it.level != mainLevel } == null) {
-            result.add(this.getSubOption(mainLevel, mode, result))
-            result.add(this.getSubOption(mainLevel, mode, result))
-        } else {
-            result.add(this.getSubOption(mainLevel, mode, result))
+        val subLockCount = locks.count { it.level != mainLevel }
+        when (subLockCount) {
+            0 -> {
+                result.add(this.getSubOption(mainLevel, mode, result))
+                result.add(this.getSubOption(mainLevel, mode, result))
+            }
+
+            1 -> result.add(this.getSubOption(mainLevel, mode, result))
         }
 
         result.sortByDescending { it.level.ordinal }
