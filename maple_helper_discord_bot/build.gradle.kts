@@ -11,18 +11,11 @@ repositories {
 }
 
 dependencies {
+    // Core
+    implementation(project(":maple_helper_core"))
+
     // Discord
     implementation("net.dv8tion:JDA:5.0.0-beta.16")
-
-    // Logger
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
-
-    // kotlin
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-
-    // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.test {

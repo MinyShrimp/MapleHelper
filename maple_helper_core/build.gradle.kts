@@ -23,23 +23,14 @@ allOpen {
 }
 
 dependencies {
-    // Logger
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
-
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-
-    // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 
     // JPA
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("com.mysql:mysql-connector-j:8.1.0")
     testImplementation("io.mockk:mockk:1.13.8")
 }
 

@@ -20,4 +20,5 @@ pluginManagement {
 }
 
 include("maple_helper_core")
+include("maple_helper_api")
 include("maple_helper_discord_bot")
