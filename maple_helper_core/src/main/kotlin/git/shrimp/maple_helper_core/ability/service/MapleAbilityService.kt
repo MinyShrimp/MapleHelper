@@ -1,16 +1,8 @@
 package git.shrimp.maple_helper_core.ability.service
 
-import git.shrimp.maple_helper_core.ability.dto.AbilityResult
-import git.shrimp.maple_helper_core.ability.dto.SimulationOption
-import git.shrimp.maple_helper_core.ability.dto.SimulationResult
-import git.shrimp.maple_helper_core.ability.dto.TargetDto
-import git.shrimp.maple_helper_core.ability.model.AbilityMode
-import git.shrimp.maple_helper_core.ability.model.AbilityNumeric
-import git.shrimp.maple_helper_core.ability.model.AbilityOption
-import git.shrimp.maple_helper_core.ability.model.AbilityWeight
-import git.shrimp.maple_helper_core.ability.repository.AbilityNumericRepository
-import git.shrimp.maple_helper_core.ability.repository.AbilityOptionRepository
-import git.shrimp.maple_helper_core.ability.repository.AbilityWeightRepository
+import git.shrimp.maple_helper_core.ability.dto.OptionDto
+import git.shrimp.maple_helper_core.ability.model.*
+import git.shrimp.maple_helper_core.ability.repository.*
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -20,6 +12,8 @@ class MapleAbilityService(
     private val abilityOptionRepository: AbilityOptionRepository,
     private val abilityWeightRepository: AbilityWeightRepository,
     private val abilityNumericRepository: AbilityNumericRepository,
+    private val abilityResultRepository: AbilityResultRepository,
+    private val abilityResultEntryRepository: AbilityResultEntryRepository
 ) {
     private fun getRandom(
         maxNumber: Int
@@ -59,9 +53,9 @@ class MapleAbilityService(
     private fun getResult(
         level: OptionLevel,
         mode: AbilityMode,
-        withoutOptions: List<AbilityOption> = listOf()
-    ): AbilityResult {
-        val withoutOptionIds = withoutOptions.map { it.id }
+        withoutOptions: List<AbilityResultEntry> = listOf()
+    ): AbilityResultEntry {
+        val withoutOptionIds = withoutOptions.map { it.optionId }
         val weights =
             this.abilityWeightRepository.findAllByLevel(level).filterNot { withoutOptionIds.contains(it.optionId) }
         val optionId = this.getOptionId(weights.shuffled())
@@ -70,27 +64,26 @@ class MapleAbilityService(
         val numeric = this.getNumeric(numerics, mode)
 
         val option = this.abilityOptionRepository.findById(optionId).orElseThrow()
-        return AbilityResult(
-            id = option.id,
-            name = option.name,
+        return AbilityResultEntry(
+            option = option,
             level = level,
-            numeric = numeric,
+            numerics = numeric
         )
     }
 
     private fun getMainOption(
         mainLevel: OptionLevel,
         mode: AbilityMode,
-        withoutOptions: List<AbilityOption>
-    ): AbilityResult {
+        withoutOptions: List<AbilityResultEntry>
+    ): AbilityResultEntry {
         return this.getResult(mainLevel, mode, withoutOptions)
     }
 
     private fun getSubOption(
         mainLevel: OptionLevel,
         mode: AbilityMode,
-        withoutOptions: List<AbilityOption>
-    ): AbilityResult {
+        withoutOptions: List<AbilityResultEntry>
+    ): AbilityResultEntry {
         val random = this.getRandom(100)
 
         return when (mainLevel) {
@@ -110,81 +103,99 @@ class MapleAbilityService(
         }
     }
 
+    private fun convertOptionDtoToAbilityResultEntry(
+        dto: OptionDto
+    ): AbilityResultEntry {
+        val option = this.abilityOptionRepository.findById(dto.optionId).orElseThrow()
+
+        return AbilityResultEntry(
+            option = option,
+            level = dto.level,
+            numerics = dto.numeric,
+        )
+    }
+
     @Transactional
     fun getOption(
         mainLevel: OptionLevel = OptionLevel.LEGENDARY,
         mode: AbilityMode = AbilityMode.NORMAL,
-        locks: List<AbilityResult> = listOf()
-    ): List<AbilityResult> {
-        val result = mutableListOf<AbilityResult>()
-        result.addAll(locks)
+        locks: List<OptionDto> = listOf()
+    ): AbilityResult {
+        val entries = mutableListOf<AbilityResultEntry>()
+        entries.addAll(locks.map(::convertOptionDtoToAbilityResultEntry))
 
         if (locks.find { it.level == mainLevel } == null) {
-            result.add(this.getMainOption(mainLevel, mode, result))
+            entries.add(this.getMainOption(mainLevel, mode, entries))
         }
 
         val subLockCount = locks.count { it.level != mainLevel }
         when (subLockCount) {
             0 -> {
-                result.add(this.getSubOption(mainLevel, mode, result))
-                result.add(this.getSubOption(mainLevel, mode, result))
+                entries.add(this.getSubOption(mainLevel, mode, entries))
+                entries.add(this.getSubOption(mainLevel, mode, entries))
             }
 
-            1 -> result.add(this.getSubOption(mainLevel, mode, result))
+            1 -> entries.add(this.getSubOption(mainLevel, mode, entries))
         }
 
-        result.sortByDescending { it.level.ordinal }
-        return result.toList()
+        entries.sortByDescending { it.level.ordinal }
+
+        val result = AbilityResult(entries)
+        entries.forEach { it.result = result }
+        this.abilityResultRepository.save(result)
+        this.abilityResultEntryRepository.saveAll(entries)
+
+        return result
     }
 
-    private fun simulate(
-        option: SimulationOption,
-        targets: List<AbilityResult>,
-        locks: List<AbilityResult>
-    ): List<SimulationResult> {
-        val simulationResults = mutableListOf<SimulationResult>()
-        for (index in 0 until option.maxCount) {
-            run loop@{
-                for (c in 0 until 100000) {
-                    val results = this.getOption(option.mainLevel, option.mode, locks)
-                    if (results.any { targets.contains(it) }) {
-                        simulationResults.add(SimulationResult(c, results))
-                        return@loop
-                    }
-                }
-                simulationResults.add(SimulationResult(option.maxCount, listOf()))
-            }
-        }
-
-        return simulationResults.toList()
-    }
-
-    private fun convertTargetDtoToAbilityResult(
-        targetDto: TargetDto
-    ): AbilityResult {
-        val option = this.abilityOptionRepository.findById(targetDto.id).orElseThrow()
-
-        return AbilityResult(
-            id = option.id,
-            name = option.name,
-            level = targetDto.level,
-            numeric = targetDto.numeric,
-        )
-    }
-
-    @Transactional
-    fun simulation(
-        option: SimulationOption,
-        targetDtoList: List<TargetDto>,
-        lockDtoList: List<TargetDto> = listOf()
-    ): List<SimulationResult> {
-        if (lockDtoList.count() > 2) {
-            throw Exception("Lock count must be less than 2")
-        }
-
-        val targets = targetDtoList.map { this.convertTargetDtoToAbilityResult(it) }
-        val locks = lockDtoList.map { this.convertTargetDtoToAbilityResult(it) }
-
-        return simulate(option, targets, locks)
-    }
+//    private fun simulate(
+//        option: SimulationOption,
+//        targets: List<AbilityResultDto>,
+//        locks: List<AbilityResultDto>
+//    ): List<SimulationResult> {
+//        val simulationResults = mutableListOf<SimulationResult>()
+//        for (index in 0 until option.maxCount) {
+//            run loop@{
+//                for (c in 0 until 100000) {
+//                    val results = this.getOption(option.mainLevel, option.mode, locks)
+//                    if (results.any { targets.contains(it) }) {
+//                        simulationResults.add(SimulationResult(c, results))
+//                        return@loop
+//                    }
+//                }
+//                simulationResults.add(SimulationResult(option.maxCount, listOf()))
+//            }
+//        }
+//
+//        return simulationResults.toList()
+//    }
+//
+//    private fun convertTargetDtoToAbilityResult(
+//        targetDto: TargetDto
+//    ): AbilityResultDto {
+//        val option = this.abilityOptionRepository.findById(targetDto.id).orElseThrow()
+//
+//        return AbilityResultDto(
+//            id = option.id,
+//            name = option.name,
+//            level = targetDto.level,
+//            numeric = targetDto.numeric,
+//        )
+//    }
+//
+//    @Transactional
+//    fun simulation(
+//        option: SimulationOption,
+//        targetDtoList: List<TargetDto>,
+//        lockDtoList: List<TargetDto> = listOf()
+//    ): List<SimulationResult> {
+//        if (lockDtoList.count() > 2) {
+//            throw Exception("Lock count must be less than 2")
+//        }
+//
+//        val targets = targetDtoList.map { this.convertTargetDtoToAbilityResult(it) }
+//        val locks = lockDtoList.map { this.convertTargetDtoToAbilityResult(it) }
+//
+//        return simulate(option, targets, locks)
+//    }
 }

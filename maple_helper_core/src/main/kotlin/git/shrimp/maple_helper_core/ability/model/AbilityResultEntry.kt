@@ -1,22 +1,16 @@
 package git.shrimp.maple_helper_core.ability.model
 
+import git.shrimp.maple_helper_core.global.converter.IntListToStringConverter
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import jakarta.persistence.*
 import java.util.*
 
 @Entity
-@Table(
-    name = "ability_weight",
-    indexes = [
-        Index(name = "ability_numeric_option_id_index", columnList = "option_id"),
-        Index(name = "ability_numeric_level_index", columnList = "level")
-    ]
-)
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-class AbilityWeight(
-    level: OptionLevel,
-    weight: Int,
+@Table(name = "ability_result_entry")
+class AbilityResultEntry(
     option: AbilityOption,
+    level: OptionLevel,
+    numerics: List<Int>
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,11 +21,12 @@ class AbilityWeight(
     var level: OptionLevel = level
         protected set
 
-    @Column(name = "weight", nullable = false)
-    var weight: Int = weight
+    @Convert(converter = IntListToStringConverter::class)
+    @Column(name = "numerics", nullable = false)
+    var numerics: List<Int> = numerics
         protected set
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne
     @JoinColumn(name = "option_id", nullable = false)
     var option: AbilityOption = option
         protected set
@@ -40,7 +35,10 @@ class AbilityWeight(
     var optionId: Int = option.id
         protected set
 
-    override fun toString(): String {
-        return "Option(id=$id, name='${option.name}', level=$level, weight=$weight)"
-    }
+    @ManyToOne
+    @JoinColumn(name = "result_id", nullable = false)
+    var result: AbilityResult? = null
+
+    @Column(name = "result_id", nullable = false, insertable = false, updatable = false)
+    var resultId: Int? = null
 }

@@ -3,7 +3,6 @@ package git.shrimp.maple_helper_core.ability.model
 import git.shrimp.maple_helper_core.global.converter.IntListToStringConverter
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import jakarta.persistence.*
-import java.util.*
 
 @Entity
 @Table(
@@ -18,7 +17,7 @@ class AbilityNumeric(
     weight: Int,
     option: AbilityOption,
     numerics: List<Int>,
-) : AbilityWeight(UUID.randomUUID(), level, weight, option) {
+) : AbilityWeight(level, weight, option) {
     @Convert(converter = IntListToStringConverter::class)
     @Column(name = "numerics", nullable = false)
     var numerics: List<Int> = numerics
