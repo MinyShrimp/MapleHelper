@@ -53,3 +53,7 @@ tasks.jar {
         attributes["Main-Class"] = ""
     }
 }
+
+tasks.bootJar {
+    enabled = false
+}
