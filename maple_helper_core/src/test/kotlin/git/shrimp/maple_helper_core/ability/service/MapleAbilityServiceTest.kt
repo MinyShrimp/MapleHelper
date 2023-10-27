@@ -1,7 +1,8 @@
 package git.shrimp.maple_helper_core.ability.service
 
+import git.shrimp.maple_helper_core.ability.dto.AbilityOptionDto
 import git.shrimp.maple_helper_core.ability.dto.AbilityResultDto
-import git.shrimp.maple_helper_core.ability.dto.OptionDto
+import git.shrimp.maple_helper_core.ability.dto.SimulationOption
 import git.shrimp.maple_helper_core.ability.mock.AbilityNumericMockRepository
 import git.shrimp.maple_helper_core.ability.mock.AbilityOptionMockRepository
 import git.shrimp.maple_helper_core.ability.mock.AbilityWeightMockRepository
@@ -28,6 +29,11 @@ open class MapleAbilityServiceTest {
         abilityNumericRepository,
         abilityResultRepository,
         abilityResultEntryRepository
+    )
+
+    private val mapleAbilitySimulationService = MapleAbilitySimulationService(
+        abilityOptionRepository,
+        mapleAbilityService
     )
 
     @BeforeEach
@@ -82,40 +88,40 @@ open class MapleAbilityServiceTest {
         for (index in 0..100) {
             val result = mapleAbilityService.getOption(
                 mainLevel = OptionLevel.LEGENDARY,
-                locks = listOf(OptionDto(9, OptionLevel.UNIQUE, listOf(20)))
+                locks = listOf(AbilityOptionDto(9, OptionLevel.UNIQUE, listOf(20)))
             )
             AbilityResultDto.of(result).entries.forEach(::println)
             println("========================================")
         }
     }
 
-//    @Test
-//    fun simulationTest() {
-//        val targetDto = TargetDto(9, OptionLevel.UNIQUE, listOf(20))
-//        val option = SimulationOption(10, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
-//
-//        val simulationResults = mapleAbilityService.simulation(option, listOf(targetDto))
-//
-//        val total = simulationResults.size
-//        val minCount = simulationResults.minOf { it.count }
-//        val maxCount = simulationResults.maxOf { it.count }
-//        val averageCount = simulationResults.sumOf { it.count } / total
-//
-//        println("Final Result => Count: $total")
-//        println("min: $minCount / max: $maxCount / average: $averageCount")
-//
-//        val diff = 100
-//        for (index in 0..maxCount step diff) {
-//            val nowCount = simulationResults.count { it.count in index until index + diff }
-//            val accCount = simulationResults.count { it.count < index + diff }
-//            val msg = "count: %4d ~ %4d => %4d (%2.2f) %4d (%2.2f)".format(
-//                index, index + diff - 1,
-//                nowCount, nowCount.toDouble() / total * 100,
-//                accCount, accCount.toDouble() / total * 100
-//            )
-//            println(msg)
-//        }
-//    }
+    @Test
+    fun simulationTest() = runBlocking {
+        val targetDto = AbilityOptionDto(9, OptionLevel.UNIQUE, listOf(20))
+        val option = SimulationOption(10, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
+
+        val simulationResults = mapleAbilitySimulationService.simulation(option, listOf(targetDto))
+
+        val total = simulationResults.size
+        val minCount = simulationResults.minOf { it.count }
+        val maxCount = simulationResults.maxOf { it.count }
+        val averageCount = simulationResults.sumOf { it.count } / total
+
+        println("Final Result => Count: $total")
+        println("min: $minCount / max: $maxCount / average: $averageCount")
+
+        val diff = 100
+        for (index in 0..maxCount step diff) {
+            val nowCount = simulationResults.count { it.count in index until index + diff }
+            val accCount = simulationResults.count { it.count < index + diff }
+            val msg = "count: %4d ~ %4d => %4d (%2.2f) %4d (%2.2f)".format(
+                index, index + diff - 1,
+                nowCount, nowCount.toDouble() / total * 100,
+                accCount, accCount.toDouble() / total * 100
+            )
+            println(msg)
+        }
+    }
 //
 //    @Test
 //    fun simulationTest2() {

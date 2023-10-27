@@ -1,6 +1,6 @@
 package git.shrimp.maple_helper_core.ability.service
 
-import git.shrimp.maple_helper_core.ability.dto.OptionDto
+import git.shrimp.maple_helper_core.ability.dto.AbilityOptionDto
 import git.shrimp.maple_helper_core.ability.model.*
 import git.shrimp.maple_helper_core.ability.repository.*
 import git.shrimp.maple_helper_core.global.model.OptionLevel
@@ -110,8 +110,8 @@ class MapleAbilityService(
         }
     }
 
-    private suspend fun convertOptionDtoToAbilityResultEntry(
-        dto: OptionDto
+    suspend fun convertOptionDtoToAbilityResultEntry(
+        dto: AbilityOptionDto
     ): AbilityResultEntry {
         val option = withContext(Dispatchers.IO) {
             abilityOptionRepository.findById(dto.optionId)
@@ -128,7 +128,7 @@ class MapleAbilityService(
     suspend fun getOption(
         mainLevel: OptionLevel = OptionLevel.LEGENDARY,
         mode: AbilityMode = AbilityMode.NORMAL,
-        locks: List<OptionDto> = listOf()
+        locks: List<AbilityOptionDto> = listOf()
     ): AbilityResult {
         if (locks.count() > 2) {
             throw Exception("Lock count must be less than 2")
@@ -162,55 +162,4 @@ class MapleAbilityService(
 
         return result
     }
-
-//    private fun simulate(
-//        option: SimulationOption,
-//        targets: List<AbilityResultDto>,
-//        locks: List<AbilityResultDto>
-//    ): List<SimulationResult> {
-//        val simulationResults = mutableListOf<SimulationResult>()
-//        for (index in 0 until option.maxCount) {
-//            run loop@{
-//                for (c in 0 until 100000) {
-//                    val results = this.getOption(option.mainLevel, option.mode, locks)
-//                    if (results.any { targets.contains(it) }) {
-//                        simulationResults.add(SimulationResult(c, results))
-//                        return@loop
-//                    }
-//                }
-//                simulationResults.add(SimulationResult(option.maxCount, listOf()))
-//            }
-//        }
-//
-//        return simulationResults.toList()
-//    }
-//
-//    private fun convertTargetDtoToAbilityResult(
-//        targetDto: TargetDto
-//    ): AbilityResultDto {
-//        val option = this.abilityOptionRepository.findById(targetDto.id).orElseThrow()
-//
-//        return AbilityResultDto(
-//            id = option.id,
-//            name = option.name,
-//            level = targetDto.level,
-//            numeric = targetDto.numeric,
-//        )
-//    }
-//
-//    @Transactional
-//    fun simulation(
-//        option: SimulationOption,
-//        targetDtoList: List<TargetDto>,
-//        lockDtoList: List<TargetDto> = listOf()
-//    ): List<SimulationResult> {
-//        if (lockDtoList.count() > 2) {
-//            throw Exception("Lock count must be less than 2")
-//        }
-//
-//        val targets = targetDtoList.map { this.convertTargetDtoToAbilityResult(it) }
-//        val locks = lockDtoList.map { this.convertTargetDtoToAbilityResult(it) }
-//
-//        return simulate(option, targets, locks)
-//    }
 }

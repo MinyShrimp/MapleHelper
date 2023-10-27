@@ -1,15 +1,14 @@
 package git.shrimp.maple_helper_core.ability.dto
 
-import git.shrimp.maple_helper_core.ability.model.AbilityOption
 import git.shrimp.maple_helper_core.ability.model.AbilityResultEntry
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 
 class AbilityResultEntryDto(
     optionId: Int,
-    name: String,
-    val level: OptionLevel,
-    val numeric: List<Int>,
-) : AbilityOption(optionId, name) {
+    val name: String,
+    level: OptionLevel,
+    numeric: List<Int>,
+) : AbilityOptionDto(optionId, level, numeric) {
     companion object {
         private val regex = Regex("\\{\\d+\\}")
 
@@ -36,5 +35,22 @@ class AbilityResultEntryDto(
 
     override fun toString(): String {
         return "[%9s] %s".format(this.level, this.text)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is AbilityResultEntryDto) return false
+        return this.optionId == other.optionId
+                && this.level == other.level
+                && this.numeric.toSet() == other.numeric.toSet()
+    }
+
+    override fun hashCode(): Int {
+        var result = optionId.hashCode()
+        result = 31 * result + level.hashCode()
+        numeric.forEach {
+            result = 31 * result + it.hashCode()
+        }
+
+        return result
     }
 }
