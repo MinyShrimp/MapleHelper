@@ -5,6 +5,8 @@ import git.shrimp.maple_helper_core.ability.model.*
 import git.shrimp.maple_helper_core.ability.repository.*
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 
 @Service
@@ -50,20 +52,25 @@ class MapleAbilityService(
         }
     }
 
-    private fun getResult(
+    private suspend fun getResult(
         level: OptionLevel,
         mode: AbilityMode,
         withoutOptions: List<AbilityResultEntry> = listOf()
     ): AbilityResultEntry {
         val withoutOptionIds = withoutOptions.map { it.optionId }
-        val weights =
-            this.abilityWeightRepository.findAllByLevel(level).filterNot { withoutOptionIds.contains(it.optionId) }
+        val weights = withContext(Dispatchers.IO) {
+            abilityWeightRepository.findAllByLevel(level)
+        }.filterNot { withoutOptionIds.contains(it.optionId) }
         val optionId = this.getOptionId(weights.shuffled())
 
-        val numerics = this.abilityNumericRepository.findAllByOptionIdAndLevel(optionId, level)
+        val numerics = withContext(Dispatchers.IO) {
+            abilityNumericRepository.findAllByOptionIdAndLevel(optionId, level)
+        }
         val numeric = this.getNumeric(numerics, mode)
 
-        val option = this.abilityOptionRepository.findById(optionId).orElseThrow()
+        val option = withContext(Dispatchers.IO) {
+            abilityOptionRepository.findById(optionId)
+        }.orElseThrow()
         return AbilityResultEntry(
             option = option,
             level = level,
@@ -71,7 +78,7 @@ class MapleAbilityService(
         )
     }
 
-    private fun getMainOption(
+    private suspend fun getMainOption(
         mainLevel: OptionLevel,
         mode: AbilityMode,
         withoutOptions: List<AbilityResultEntry>
@@ -79,7 +86,7 @@ class MapleAbilityService(
         return this.getResult(mainLevel, mode, withoutOptions)
     }
 
-    private fun getSubOption(
+    private suspend fun getSubOption(
         mainLevel: OptionLevel,
         mode: AbilityMode,
         withoutOptions: List<AbilityResultEntry>
@@ -103,10 +110,12 @@ class MapleAbilityService(
         }
     }
 
-    private fun convertOptionDtoToAbilityResultEntry(
+    private suspend fun convertOptionDtoToAbilityResultEntry(
         dto: OptionDto
     ): AbilityResultEntry {
-        val option = this.abilityOptionRepository.findById(dto.optionId).orElseThrow()
+        val option = withContext(Dispatchers.IO) {
+            abilityOptionRepository.findById(dto.optionId)
+        }.orElseThrow()
 
         return AbilityResultEntry(
             option = option,
@@ -116,13 +125,17 @@ class MapleAbilityService(
     }
 
     @Transactional
-    fun getOption(
+    suspend fun getOption(
         mainLevel: OptionLevel = OptionLevel.LEGENDARY,
         mode: AbilityMode = AbilityMode.NORMAL,
         locks: List<OptionDto> = listOf()
     ): AbilityResult {
+        if (locks.count() > 2) {
+            throw Exception("Lock count must be less than 2")
+        }
+
         val entries = mutableListOf<AbilityResultEntry>()
-        entries.addAll(locks.map(::convertOptionDtoToAbilityResultEntry))
+        entries.addAll(locks.map { this.convertOptionDtoToAbilityResultEntry(it) })
 
         if (locks.find { it.level == mainLevel } == null) {
             entries.add(this.getMainOption(mainLevel, mode, entries))
@@ -142,8 +155,10 @@ class MapleAbilityService(
 
         val result = AbilityResult(entries)
         entries.forEach { it.result = result }
-        this.abilityResultRepository.save(result)
-        this.abilityResultEntryRepository.saveAll(entries)
+        withContext(Dispatchers.IO) {
+            abilityResultRepository.save(result)
+            abilityResultEntryRepository.saveAll(entries)
+        }
 
         return result
     }

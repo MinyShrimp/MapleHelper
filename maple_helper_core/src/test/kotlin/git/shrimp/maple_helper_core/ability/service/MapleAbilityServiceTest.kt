@@ -1,5 +1,6 @@
 package git.shrimp.maple_helper_core.ability.service
 
+import git.shrimp.maple_helper_core.ability.dto.AbilityResultDto
 import git.shrimp.maple_helper_core.ability.dto.OptionDto
 import git.shrimp.maple_helper_core.ability.mock.AbilityNumericMockRepository
 import git.shrimp.maple_helper_core.ability.mock.AbilityOptionMockRepository
@@ -10,6 +11,7 @@ import git.shrimp.maple_helper_core.ability.repository.*
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -65,24 +67,24 @@ open class MapleAbilityServiceTest {
     }
 
     @Test
-    fun legendaryTest() {
+    fun normalTest() = runBlocking {
         println("========================================")
         for (index in 0..100) {
-            val result = this.mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
-            result.entries.forEach(::println)
+            val result = mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
+            AbilityResultDto.of(result).entries.forEach(::println)
             println("========================================")
         }
     }
 
     @Test
-    fun uniqueTest() {
+    fun lockTest() = runBlocking {
         println("========================================")
         for (index in 0..100) {
-            val result = this.mapleAbilityService.getOption(
+            val result = mapleAbilityService.getOption(
                 mainLevel = OptionLevel.LEGENDARY,
                 locks = listOf(OptionDto(9, OptionLevel.UNIQUE, listOf(20)))
             )
-            result.entries.forEach(::println)
+            AbilityResultDto.of(result).entries.forEach(::println)
             println("========================================")
         }
     }
