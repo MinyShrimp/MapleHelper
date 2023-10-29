@@ -4,9 +4,7 @@ plugins {
     id("io.spring.dependency-management")
 
     kotlin("jvm")
-    kotlin("plugin.jpa")
     kotlin("plugin.spring")
-    kotlin("plugin.serialization")
 }
 
 dependencyManagement {
@@ -16,20 +14,13 @@ dependencyManagement {
     }
 }
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
-}
-
 dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 
-    // JPA
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    // Test
     testImplementation("io.mockk:mockk:1.13.8")
 }
 

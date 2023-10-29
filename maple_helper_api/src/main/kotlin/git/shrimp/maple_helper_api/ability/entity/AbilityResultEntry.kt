@@ -1,6 +1,6 @@
-package git.shrimp.maple_helper_core.ability.model
+package git.shrimp.maple_helper_api.ability.entity
 
-import git.shrimp.maple_helper_core.global.converter.IntListToStringConverter
+import git.shrimp.maple_helper_api.base.converter.IntListToStringConverter
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import jakarta.persistence.*
 import java.util.*

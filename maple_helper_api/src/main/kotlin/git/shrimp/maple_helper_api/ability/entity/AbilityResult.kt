@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_core.ability.model
+package git.shrimp.maple_helper_api.ability.entity
 
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate

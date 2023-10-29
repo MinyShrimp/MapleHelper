@@ -12,6 +12,12 @@ repositories {
     mavenCentral()
 }
 
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
 dependencies {
     // Core
     implementation(project(":maple_helper_core"))
@@ -28,6 +34,7 @@ dependencies {
 
     // JPA
     implementation("com.mysql:mysql-connector-j:8.1.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }
 
 tasks.test {

@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_api.config
+package git.shrimp.maple_helper_api.base.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component

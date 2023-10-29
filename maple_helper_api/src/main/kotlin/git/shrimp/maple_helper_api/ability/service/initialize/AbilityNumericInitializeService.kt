@@ -1,8 +1,8 @@
-package git.shrimp.maple_helper_core.ability.service
+package git.shrimp.maple_helper_api.ability.service.initialize
 
-import git.shrimp.maple_helper_core.ability.model.AbilityNumeric
-import git.shrimp.maple_helper_core.ability.repository.AbilityNumericRepository
-import git.shrimp.maple_helper_core.ability.repository.AbilityOptionRepository
+import git.shrimp.maple_helper_api.ability.entity.AbilityNumeric
+import git.shrimp.maple_helper_api.ability.repository.AbilityNumericRepository
+import git.shrimp.maple_helper_api.ability.repository.AbilityOptionRepository
 import git.shrimp.maple_helper_core.global.model.OptionLevel
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service

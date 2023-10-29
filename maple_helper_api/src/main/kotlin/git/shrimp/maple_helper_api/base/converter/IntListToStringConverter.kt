@@ -1,8 +1,8 @@
-package git.shrimp.maple_helper_core.global.converter
+package git.shrimp.maple_helper_api.base.converter
 
 import jakarta.persistence.AttributeConverter
 
-class IntListToStringConverter() : AttributeConverter<List<Int>, String> {
+class IntListToStringConverter : AttributeConverter<List<Int>, String> {
     override fun convertToDatabaseColumn(
         attribute: List<Int>?
     ): String {
