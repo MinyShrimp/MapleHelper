@@ -1,23 +1,25 @@
 package git.shrimp.maple_helper_api.ability.controller
 
 import git.shrimp.maple_helper_api.ability.dto.OptionRequest
+import git.shrimp.maple_helper_api.ability.dto.SimulationRequest
 import git.shrimp.maple_helper_api.ability.service.AbilityOptionCachingService
 import git.shrimp.maple_helper_api.ability.service.AbilityResultService
+import git.shrimp.maple_helper_api.ability.service.AbilitySimulationService
 import git.shrimp.maple_helper_api.ability.service.initialize.AbilityInitializeService
-import git.shrimp.maple_helper_core.ability.dto.AbilityOption
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import git.shrimp.maple_helper_core.ability.dto.SimulationOption
 import git.shrimp.maple_helper_core.ability.dto.SimulationResult
 import git.shrimp.maple_helper_core.ability.service.MapleAbilityService
 import git.shrimp.maple_helper_core.ability.service.MapleAbilitySimulationService
-import git.shrimp.maple_helper_core.ability.types.AbilityMode
-import git.shrimp.maple_helper_core.global.types.OptionLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.mono
 import kotlinx.coroutines.withContext
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 
 @RestController
@@ -26,6 +28,7 @@ class MapleAbilityController(
     private val abilityInitializeService: AbilityInitializeService,
     private val abilityOptionCachingService: AbilityOptionCachingService,
     private val abilityResultService: AbilityResultService,
+    private val abilitySimulationService: AbilitySimulationService,
     private val mapleAbilityService: MapleAbilityService,
     private val mapleAbilitySimulationService: MapleAbilitySimulationService
 ) {
@@ -65,22 +68,31 @@ class MapleAbilityController(
         return getStreamResponse(request.stream, results)
     }
 
-    @GetMapping("/simulate")
+    @PostMapping("/simulate")
     fun simulate(
-        @RequestParam("count", defaultValue = "1") count: Int
-    ): Flux<SimulationResult> {
+        @RequestBody(required = false) req: SimulationRequest?
+    ): ResponseEntity<Flux<SimulationResult>> {
+        val request = req ?: SimulationRequest()
+        val dataMap = abilityOptionCachingService.getCachedOptionData()
+
         val option = SimulationOption(
-            mainLevel = OptionLevel.LEGENDARY,
-            mode = AbilityMode.MIRACLE,
-            maxCount = count
-        )
-        val targets = listOf(
-            AbilityOption(optionId = 9, level = OptionLevel.LEGENDARY, numeric = listOf(20))
+            mainLevel = request.mainLevel,
+            mode = request.mode,
+            maxCount = request.count
         )
 
-        val dataMap = abilityOptionCachingService.getCachedOptionData()
-        return mono { mapleAbilitySimulationService.simulation(dataMap, option, targets) }
-            .flatMapMany { results -> Flux.fromIterable(results) }
+        val results = mono {
+            val simulationResults = mapleAbilitySimulationService.simulation(dataMap, option, request.targets, request.locks)
+
+            simulationResults.map {
+                withContext(Dispatchers.IO) {
+                    val entity = abilitySimulationService.saveResult(it, request)
+                    it.copy(id = entity.id)
+                }
+            }
+        }.flatMapMany { results -> Flux.fromIterable(results) }
+
+        return getStreamResponse(request.stream, results)
     }
 
     @PostMapping("/initialize")

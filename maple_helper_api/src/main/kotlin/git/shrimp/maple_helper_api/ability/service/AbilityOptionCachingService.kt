@@ -1,7 +1,7 @@
 package git.shrimp.maple_helper_api.ability.service
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityOptionEntity
-import git.shrimp.maple_helper_api.ability.repository.AbilityOptionRepository
+import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
+import git.shrimp.maple_helper_api.ability.repository.data.AbilityOptionRepository
 import git.shrimp.maple_helper_core.ability.dto.AbilityOptionData
 import git.shrimp.maple_helper_core.ability.types.OptionDataMap
 import git.shrimp.maple_helper_core.global.types.OptionLevel

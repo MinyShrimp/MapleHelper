@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_api.ability.entity
+package git.shrimp.maple_helper_api.ability.entity.data
 
 import jakarta.persistence.*
 

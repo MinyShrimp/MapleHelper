@@ -1,13 +1,14 @@
-package git.shrimp.maple_helper_api.ability.entity
+package git.shrimp.maple_helper_api.ability.entity.simulation
 
+import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
 import git.shrimp.maple_helper_api.base.converter.IntListToStringConverter
 import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.persistence.*
 import java.util.*
 
 @Entity
-@Table(name = "ability_result_entry")
-class AbilityResultEntryEntity(
+@Table(name = "ability_simulation_lock")
+class AbilitySimulationLockEntity(
     option: AbilityOptionEntity,
     level: OptionLevel,
     numerics: List<Int>
@@ -36,14 +37,14 @@ class AbilityResultEntryEntity(
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "result_id", nullable = false)
-    var result: AbilityResultEntity? = null
+    @JoinColumn(name = "simulation_id", nullable = false)
+    var result: AbilitySimulationEntity? = null
         set(value) {
             field = value
             this.resultId = value?.id
         }
 
-    @Column(name = "result_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "simulation_id", nullable = false, insertable = false, updatable = false)
     var resultId: Int? = null
         protected set
 }

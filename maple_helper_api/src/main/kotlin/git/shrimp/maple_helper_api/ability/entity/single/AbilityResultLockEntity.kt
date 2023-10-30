@@ -1,5 +1,6 @@
-package git.shrimp.maple_helper_api.ability.entity
+package git.shrimp.maple_helper_api.ability.entity.single
 
+import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
 import git.shrimp.maple_helper_api.base.converter.IntListToStringConverter
 import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.persistence.*

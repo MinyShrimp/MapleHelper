@@ -27,11 +27,11 @@ class MapleAbilitySimulationService(
                     val result = this.mapleAbilityService.getOption(dataMap, option.mainLevel, option.mode, locks)
                     val entries = result.entries
                     if (entries.any { targets.contains(it) }) {
-                        simulationResults.add(SimulationResult(c, entries))
+                        simulationResults.add(SimulationResult(c, option.mode, entries))
                         return@loop
                     }
                 }
-                simulationResults.add(SimulationResult(option.maxCount, listOf()))
+                simulationResults.add(SimulationResult(option.maxCount, option.mode, listOf()))
             }
         }
 

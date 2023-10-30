@@ -1,8 +1,8 @@
 package git.shrimp.maple_helper_api.ability.service.initialize
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityWeightEntity
-import git.shrimp.maple_helper_api.ability.repository.AbilityOptionRepository
-import git.shrimp.maple_helper_api.ability.repository.AbilityWeightRepository
+import git.shrimp.maple_helper_api.ability.entity.data.AbilityWeightEntity
+import git.shrimp.maple_helper_api.ability.repository.data.AbilityOptionRepository
+import git.shrimp.maple_helper_api.ability.repository.data.AbilityWeightRepository
 import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service

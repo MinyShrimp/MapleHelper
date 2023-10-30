@@ -1,6 +1,6 @@
-package git.shrimp.maple_helper_api.ability.repository
+package git.shrimp.maple_helper_api.ability.repository.single
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityResultEntity
+import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 

@@ -1,13 +1,13 @@
 package git.shrimp.maple_helper_api.ability.service
 
 import git.shrimp.maple_helper_api.ability.dto.OptionRequest
-import git.shrimp.maple_helper_api.ability.entity.AbilityOptionEntity
-import git.shrimp.maple_helper_api.ability.entity.AbilityResultEntity
-import git.shrimp.maple_helper_api.ability.entity.AbilityResultEntryEntity
-import git.shrimp.maple_helper_api.ability.entity.AbilityResultLockEntity
-import git.shrimp.maple_helper_api.ability.repository.AbilityResultEntryRepository
-import git.shrimp.maple_helper_api.ability.repository.AbilityResultLockRepository
-import git.shrimp.maple_helper_api.ability.repository.AbilityResultRepository
+import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
+import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntity
+import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntryEntity
+import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultLockEntity
+import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultEntryRepository
+import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultLockRepository
+import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultRepository
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import git.shrimp.maple_helper_core.ability.types.OptionDataMap
 import jakarta.transaction.Transactional
