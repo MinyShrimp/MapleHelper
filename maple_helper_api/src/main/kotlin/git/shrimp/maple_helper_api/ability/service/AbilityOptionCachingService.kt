@@ -22,8 +22,8 @@ class AbilityOptionCachingService(
     private fun getOptionData(
         option: AbilityOptionEntity,
         optionLevel: OptionLevel
-    ): AbilityOptionData {
-        val weight = option.weights.find { it.level == optionLevel }?.weight ?: 0
+    ): AbilityOptionData? {
+        val weight = option.weights.find { it.level == optionLevel }?.weight ?: return null
         val numerics = option.numerics.filter { it.level == optionLevel }
 
         return AbilityOptionData(
@@ -42,7 +42,7 @@ class AbilityOptionCachingService(
         for (level in OptionLevel.entries) {
             val optionData = mutableMapOf<Int, AbilityOptionData>()
             for (option in options) {
-                optionData[option.id] = this.getOptionData(option, level)
+                optionData[option.id] = this.getOptionData(option, level) ?: continue
             }
             optionDataMap[level] = optionData
         }

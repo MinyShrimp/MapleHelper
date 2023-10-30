@@ -1,78 +1,63 @@
 package git.shrimp.maple_helper_core.ability.service
 
-open class MapleAbilityServiceTest {
+import git.shrimp.maple_helper_core.ability.dto.AbilityOption
+import git.shrimp.maple_helper_core.ability.mock.AbilityOptionMockData
+import git.shrimp.maple_helper_core.ability.mock.repository.AbilityNumericMockRepository
+import git.shrimp.maple_helper_core.ability.mock.repository.AbilityOptionMockRepository
+import git.shrimp.maple_helper_core.ability.mock.repository.AbilityWeightMockRepository
+import git.shrimp.maple_helper_core.ability.types.AbilityMode
+import git.shrimp.maple_helper_core.ability.types.OptionDataMap
+import git.shrimp.maple_helper_core.global.types.OptionLevel
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 
-//    private val mapleAbilityService = MapleAbilityService(
-//        abilityOptionRepository,
-//        abilityWeightRepository,
-//        abilityNumericRepository,
-//        abilityResultRepository,
-//        abilityResultEntryRepository
-//    )
-//
+open class MapleAbilityServiceTest {
+    private val mapleAbilityService = MapleAbilityService()
+
+    private val abilityOptionMockRepository = AbilityOptionMockRepository()
+    private val abilityWeightMockRepository = AbilityWeightMockRepository(abilityOptionMockRepository)
+    private val abilityNumericMockRepository = AbilityNumericMockRepository(abilityOptionMockRepository)
+    private val abilityOptionMockData = AbilityOptionMockData(
+        abilityOptionMockRepository,
+        abilityWeightMockRepository,
+        abilityNumericMockRepository
+    )
+
+    private val dataMap: OptionDataMap = abilityOptionMockData.get()
+
+    //
 //    private val mapleAbilitySimulationService = MapleAbilitySimulationService(
 //        abilityOptionRepository,
 //        mapleAbilityService
 //    )
 //
-//    @BeforeEach
-//    fun beforeAll() {
-//        val abilityOptionMockRepository = AbilityOptionMockRepository()
-//        every {
-//            abilityOptionRepository.findById(any())
-//        } answers {
-//            abilityOptionMockRepository.findById(firstArg())
-//        }
-//
-//        val abilityWeightMockRepository = AbilityWeightMockRepository(abilityOptionMockRepository)
-//        every {
-//            abilityWeightRepository.findAllByLevel(any())
-//        } answers {
-//            abilityWeightMockRepository.findAllByLevel(firstArg())
-//        }
-//
-//        val abilityNumericMockRepository = AbilityNumericMockRepository(abilityOptionMockRepository)
-//        every {
-//            abilityNumericRepository.findAllByOptionIdAndLevel(any(), any())
-//        } answers {
-//            abilityNumericMockRepository.findAllByOptionIdAndLevel(firstArg(), secondArg())
-//        }
-//
-//        every {
-//            abilityResultRepository.save(any())
-//        } answers {
-//            firstArg()
-//        }
-//
-//        every {
-//            abilityResultEntryRepository.saveAll(any<List<AbilityResultEntry>>())
-//        } answers {
-//            listOf(mockk())
-//        }
-//    }
-//
-//    @Test
-//    fun normalTest() = runBlocking {
-//        println("========================================")
-//        for (index in 0..100) {
-//            val result = mapleAbilityService.getOption(mainLevel = OptionLevel.LEGENDARY, mode = AbilityMode.MIRACLE)
-//            AbilityResultDto.of(result).entries.forEach(::println)
-//            println("========================================")
-//        }
-//    }
-//
-//    @Test
-//    fun lockTest() = runBlocking {
-//        println("========================================")
-//        for (index in 0..100) {
-//            val result = mapleAbilityService.getOption(
-//                mainLevel = OptionLevel.LEGENDARY,
-//                locks = listOf(AbilityOptionDto(9, OptionLevel.UNIQUE, listOf(20)))
-//            )
-//            AbilityResultDto.of(result).entries.forEach(::println)
-//            println("========================================")
-//        }
-//    }
+    @Test
+    fun normalTest() = runBlocking {
+        println("========================================")
+        for (index in 0..100) {
+            val result = mapleAbilityService.getOption(
+                dataMap = dataMap,
+                mainLevel = OptionLevel.LEGENDARY,
+                mode = AbilityMode.NORMAL
+            )
+            result.entries.forEach(::println)
+            println("========================================")
+        }
+    }
+
+    @Test
+    fun lockTest() = runBlocking {
+        println("========================================")
+        for (index in 0..100) {
+            val result = mapleAbilityService.getOption(
+                dataMap = dataMap,
+                mainLevel = OptionLevel.LEGENDARY,
+                locks = listOf(AbilityOption(9, OptionLevel.UNIQUE, listOf(20)))
+            )
+            result.entries.forEach(::println)
+            println("========================================")
+        }
+    }
 //
 //    @Test
 //    fun simulationTest() = runBlocking {
