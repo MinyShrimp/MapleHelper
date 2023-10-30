@@ -1,6 +1,6 @@
 package git.shrimp.maple_helper_api.ability.entity
 
-import git.shrimp.maple_helper_core.global.model.OptionLevel
+import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.persistence.*
 import java.util.*
 
@@ -13,10 +13,10 @@ import java.util.*
     ]
 )
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-open class AbilityWeight(
+class AbilityWeightEntity(
     level: OptionLevel,
     weight: Int,
-    option: AbilityOption,
+    option: AbilityOptionEntity,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,14 +33,10 @@ open class AbilityWeight(
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "option_id", nullable = false)
-    var option: AbilityOption = option
+    var option: AbilityOptionEntity = option
         protected set
 
     @Column(name = "option_id", nullable = false, insertable = false, updatable = false)
     var optionId: Int = option.id
         protected set
-
-    override fun toString(): String {
-        return "Option(id=$id, name='${option.name}', level=$level, weight=$weight)"
-    }
 }

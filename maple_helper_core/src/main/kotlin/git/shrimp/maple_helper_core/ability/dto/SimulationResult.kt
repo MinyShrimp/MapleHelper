@@ -1,6 +1,6 @@
 package git.shrimp.maple_helper_core.ability.dto
 
-class SimulationResultDto(
+class SimulationResult(
     val count: Int,
-    val options: List<AbilityResultEntryDto>
+    val options: List<AbilityResultEntry>
 ) {}

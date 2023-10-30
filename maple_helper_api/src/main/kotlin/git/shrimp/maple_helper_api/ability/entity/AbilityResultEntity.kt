@@ -1,5 +1,6 @@
 package git.shrimp.maple_helper_api.ability.entity
 
+import git.shrimp.maple_helper_core.ability.types.AbilityMode
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -8,16 +9,25 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "ability_result")
 @EntityListeners(AuditingEntityListener::class)
-class AbilityResult(
-    resultEntryList: List<AbilityResultEntry>,
+class AbilityResultEntity(
+    mode: AbilityMode,
+    resultEntryList: List<AbilityResultEntryEntity>,
 ) {
+    init {
+        resultEntryList.forEach { it.result = this }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0
         protected set
 
+    @Column(name = "mode")
+    var mode: AbilityMode = mode
+        protected set
+
     @OneToMany(mappedBy = "result")
-    var entries: MutableList<AbilityResultEntry> = resultEntryList.toMutableList()
+    var entries: MutableList<AbilityResultEntryEntity> = resultEntryList.toMutableList()
         protected set
 
     @CreatedDate

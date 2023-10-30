@@ -1,6 +1,6 @@
 package git.shrimp.maple_helper_api.ability.service.initialize
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityOption
+import git.shrimp.maple_helper_api.ability.entity.AbilityOptionEntity
 import git.shrimp.maple_helper_api.ability.repository.AbilityOptionRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -13,7 +13,7 @@ class AbilityOptionInitializeService(
         id: Int,
         name: String
     ) {
-        this.abilityOptionRepository.save(AbilityOption(id, name))
+        this.abilityOptionRepository.save(AbilityOptionEntity(id, name))
     }
 
     @Transactional

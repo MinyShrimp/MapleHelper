@@ -1,9 +1,9 @@
 package git.shrimp.maple_helper_api.ability.service.initialize
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityNumeric
+import git.shrimp.maple_helper_api.ability.entity.AbilityNumericEntity
 import git.shrimp.maple_helper_api.ability.repository.AbilityNumericRepository
 import git.shrimp.maple_helper_api.ability.repository.AbilityOptionRepository
-import git.shrimp.maple_helper_core.global.model.OptionLevel
+import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
@@ -19,7 +19,7 @@ class AbilityNumericInitializeService(
     ) {
         val option = this.abilityOptionRepository.findById(id).orElseThrow()
         val weights = listOf(20, 20, 20, 15, 15, 10)
-        val entities = numerics.zip(weights).map { (numeric, weight) -> AbilityNumeric(level, weight, option, numeric) }
+        val entities = numerics.zip(weights).map { (numeric, weight) -> AbilityNumericEntity(level, weight, option, numeric) }
 
         this.abilityNumericRepository.saveAll(entities)
     }

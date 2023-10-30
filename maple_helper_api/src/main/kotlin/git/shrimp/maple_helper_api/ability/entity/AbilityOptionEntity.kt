@@ -4,7 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "ability_option")
-class AbilityOption(
+class AbilityOptionEntity(
     id: Int,
     name: String
 ) {
@@ -16,8 +16,4 @@ class AbilityOption(
     @Column(name = "name", nullable = false, unique = true)
     var name: String = name
         protected set
-
-    override fun toString(): String {
-        return "Option(id=$id, name='${name}')"
-    }
 }

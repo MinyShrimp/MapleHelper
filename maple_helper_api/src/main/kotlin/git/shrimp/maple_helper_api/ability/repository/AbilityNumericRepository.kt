@@ -1,15 +1,19 @@
 package git.shrimp.maple_helper_api.ability.repository
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityNumeric
-import git.shrimp.maple_helper_core.global.model.OptionLevel
+import git.shrimp.maple_helper_api.ability.entity.AbilityNumericEntity
+import git.shrimp.maple_helper_core.global.types.OptionLevel
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface AbilityNumericRepository : JpaRepository<AbilityNumeric, UUID> {
-    fun findAllByOptionIdAndLevel(
+interface AbilityNumericRepository : JpaRepository<AbilityNumericEntity, UUID> {
+    fun findAllByOptionIdAndLevelOrderByWeightDescNumericsAsc(
         optionId: Int,
         level: OptionLevel
-    ): List<AbilityNumeric>
+    ): List<AbilityNumericEntity>
+
+    fun findAllByOptionId(
+        optionId: Int
+    ): List<AbilityNumericEntity>
 }

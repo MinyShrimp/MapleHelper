@@ -1,8 +1,7 @@
 package git.shrimp.maple_helper_api.ability.repository
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityResultEntry
+import git.shrimp.maple_helper_api.ability.entity.AbilityResultEntity
 import org.springframework.data.jpa.repository.JpaRepository
-import java.util.*
 
-interface AbilityResultRepository : JpaRepository<AbilityResultEntry, UUID> {
+interface AbilityResultRepository : JpaRepository<AbilityResultEntity, Int> {
 }

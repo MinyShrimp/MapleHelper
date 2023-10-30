@@ -1,158 +1,143 @@
 package git.shrimp.maple_helper_core.ability.service
 
+import git.shrimp.maple_helper_core.ability.dto.AbilityOption
+import git.shrimp.maple_helper_core.ability.dto.AbilityOptionData
+import git.shrimp.maple_helper_core.ability.dto.AbilityResult
+import git.shrimp.maple_helper_core.ability.dto.AbilityResultEntry
+import git.shrimp.maple_helper_core.ability.types.AbilityMode
+import git.shrimp.maple_helper_core.ability.types.OptionDataMap
+import git.shrimp.maple_helper_core.global.types.OptionLevel
 import org.springframework.stereotype.Service
 
 @Service
-class MapleAbilityService(
-//    private val abilityOptionRepository: AbilityOptionRepository,
-//    private val abilityWeightRepository: AbilityWeightRepository,
-//    private val abilityNumericRepository: AbilityNumericRepository,
-//    private val abilityResultRepository: AbilityResultRepository,
-//    private val abilityResultEntryRepository: AbilityResultEntryRepository
-) {
-//    private fun getRandom(
-//        maxNumber: Int
-//    ): Int {
-//        return (0 until maxNumber).random()
-//    }
-//
-//    private fun getRandomWeight(
-//        weights: List<AbilityWeight>
-//    ): AbilityWeight {
-//        val totalWeight = weights.sumOf { it.weight }
-//        val random = this.getRandom(totalWeight)
-//
-//        var sum = 0
-//        return weights.find {
-//            sum += it.weight
-//            sum >= random
-//        }!!
-//    }
-//
-//    private fun getOptionId(
-//        weights: List<AbilityWeight>
-//    ): Int {
-//        return this.getRandomWeight(weights).optionId
-//    }
-//
-//    private fun getNumeric(
-//        numerics: List<AbilityNumeric>,
-//        mode: AbilityMode
-//    ): List<Int> {
-//        return when (mode) {
-//            AbilityMode.NORMAL -> (this.getRandomWeight(numerics) as AbilityNumeric).numerics
-//            AbilityMode.MIRACLE -> numerics.last().numerics
-//        }
-//    }
-//
-//    private suspend fun getResult(
-//        level: OptionLevel,
-//        mode: AbilityMode,
-//        withoutOptions: List<AbilityResultEntry> = listOf()
-//    ): AbilityResultEntry {
-//        val withoutOptionIds = withoutOptions.map { it.optionId }
-//        val weights = withContext(Dispatchers.IO) {
-//            abilityWeightRepository.findAllByLevel(level)
-//        }.filterNot { withoutOptionIds.contains(it.optionId) }
-//        val optionId = this.getOptionId(weights.shuffled())
-//
-//        val numerics = withContext(Dispatchers.IO) {
-//            abilityNumericRepository.findAllByOptionIdAndLevel(optionId, level)
-//        }
-//        val numeric = this.getNumeric(numerics, mode)
-//
-//        val option = withContext(Dispatchers.IO) {
-//            abilityOptionRepository.findById(optionId)
-//        }.orElseThrow()
-//        return AbilityResultEntry(
-//            option = option,
-//            level = level,
-//            numerics = numeric
-//        )
-//    }
-//
-//    private suspend fun getMainOption(
-//        mainLevel: OptionLevel,
-//        mode: AbilityMode,
-//        withoutOptions: List<AbilityResultEntry>
-//    ): AbilityResultEntry {
-//        return this.getResult(mainLevel, mode, withoutOptions)
-//    }
-//
-//    private suspend fun getSubOption(
-//        mainLevel: OptionLevel,
-//        mode: AbilityMode,
-//        withoutOptions: List<AbilityResultEntry>
-//    ): AbilityResultEntry {
-//        val random = this.getRandom(100)
-//
-//        return when (mainLevel) {
-//            OptionLevel.LEGENDARY -> if (random < 15) {
-//                this.getResult(OptionLevel.UNIQUE, mode, withoutOptions)
-//            } else {
-//                this.getResult(OptionLevel.EPIC, mode, withoutOptions)
-//            }
-//
-//            OptionLevel.UNIQUE -> if (random < 30) {
-//                this.getResult(OptionLevel.EPIC, mode, withoutOptions)
-//            } else {
-//                this.getResult(OptionLevel.RARE, mode, withoutOptions)
-//            }
-//
-//            else -> this.getResult(OptionLevel.RARE, mode, withoutOptions)
-//        }
-//    }
-//
-//    suspend fun convertOptionDtoToAbilityResultEntry(
-//        dto: AbilityOptionDto
-//    ): AbilityResultEntry {
-//        val option = withContext(Dispatchers.IO) {
-//            abilityOptionRepository.findById(dto.optionId)
-//        }.orElseThrow()
-//
-//        return AbilityResultEntry(
-//            option = option,
-//            level = dto.level,
-//            numerics = dto.numeric,
-//        )
-//    }
-//
-//    @Transactional
-//    suspend fun getOption(
-//        mainLevel: OptionLevel = OptionLevel.LEGENDARY,
-//        mode: AbilityMode = AbilityMode.NORMAL,
-//        locks: List<AbilityOptionDto> = listOf()
-//    ): AbilityResult {
-//        if (locks.count() > 2) {
-//            throw Exception("Lock count must be less than 2")
-//        }
-//
-//        val entries = mutableListOf<AbilityResultEntry>()
-//        entries.addAll(locks.map { this.convertOptionDtoToAbilityResultEntry(it) })
-//
-//        if (locks.find { it.level == mainLevel } == null) {
-//            entries.add(this.getMainOption(mainLevel, mode, entries))
-//        }
-//
-//        val subLockCount = locks.count { it.level != mainLevel }
-//        when (subLockCount) {
-//            0 -> {
-//                entries.add(this.getSubOption(mainLevel, mode, entries))
-//                entries.add(this.getSubOption(mainLevel, mode, entries))
-//            }
-//
-//            1 -> entries.add(this.getSubOption(mainLevel, mode, entries))
-//        }
-//
-//        entries.sortByDescending { it.level.ordinal }
-//
-//        val result = AbilityResult(entries)
-//        entries.forEach { it.result = result }
-//        withContext(Dispatchers.IO) {
-//            abilityResultRepository.save(result)
-//            abilityResultEntryRepository.saveAll(entries)
-//        }
-//
-//        return result
-//    }
+class MapleAbilityService {
+    private fun getRandom(
+        maxNumber: Int
+    ): Int {
+        return (0 until maxNumber).random()
+    }
+
+    private fun getRandomWeight(
+        weights: List<Int>
+    ): Int {
+        val totalWeight = weights.sumOf { it }
+        val random = this.getRandom(totalWeight)
+
+        var sum = 0
+        return weights.indexOfFirst {
+            sum += it
+            sum >= random
+        }
+    }
+
+    private fun getOptionId(
+        datas: List<AbilityOptionData>
+    ): Int {
+        val weights = datas.map { it.weight }
+        return this.getRandomWeight(weights).let { datas[it].id }
+    }
+
+    private fun getNumeric(
+        data: AbilityOptionData,
+        mode: AbilityMode
+    ): List<Int> {
+        return when (mode) {
+            AbilityMode.NORMAL -> {
+                val indexed = this.getRandomWeight(data.numericWeights)
+                data.numerics[indexed]
+            }
+
+            AbilityMode.MIRACLE -> data.numerics.last()
+        }
+    }
+
+    private suspend fun getResult(
+        dataMap: OptionDataMap,
+        level: OptionLevel,
+        mode: AbilityMode,
+        withoutOptions: List<AbilityResultEntry> = listOf()
+    ): AbilityResultEntry {
+        val withoutOptionIds = withoutOptions.map { it.optionId }
+
+        val weights = dataMap[level]!!.values.filterNot { withoutOptionIds.contains(it.id) }
+        val optionId = this.getOptionId(weights.shuffled())
+
+        val data = dataMap[level]!![optionId]!!
+        val numeric = this.getNumeric(data, mode)
+
+        return AbilityResultEntry(
+            optionId = optionId,
+            name = data.name,
+            level = level,
+            numeric = numeric
+        )
+    }
+
+    private suspend fun getMainOption(
+        dataMap: OptionDataMap,
+        mainLevel: OptionLevel,
+        mode: AbilityMode,
+        withoutOptions: List<AbilityResultEntry>
+    ): AbilityResultEntry {
+        return this.getResult(dataMap, mainLevel, mode, withoutOptions)
+    }
+
+    private suspend fun getSubOption(
+        dataMap: OptionDataMap,
+        mainLevel: OptionLevel,
+        mode: AbilityMode,
+        withoutOptions: List<AbilityResultEntry>
+    ): AbilityResultEntry {
+        val random = this.getRandom(100)
+
+        return when (mainLevel) {
+            OptionLevel.LEGENDARY -> if (random < 15) {
+                this.getResult(dataMap, OptionLevel.UNIQUE, mode, withoutOptions)
+            } else {
+                this.getResult(dataMap, OptionLevel.EPIC, mode, withoutOptions)
+            }
+
+            OptionLevel.UNIQUE -> if (random < 30) {
+                this.getResult(dataMap, OptionLevel.EPIC, mode, withoutOptions)
+            } else {
+                this.getResult(dataMap, OptionLevel.RARE, mode, withoutOptions)
+            }
+
+            else -> this.getResult(dataMap, OptionLevel.RARE, mode, withoutOptions)
+        }
+    }
+
+    suspend fun getOption(
+        dataMap: OptionDataMap,
+        mainLevel: OptionLevel = OptionLevel.LEGENDARY,
+        mode: AbilityMode = AbilityMode.NORMAL,
+        locks: List<AbilityOption> = listOf()
+    ): AbilityResult {
+        if (locks.count() > 2) {
+            throw Exception("Lock count must be less than 2")
+        }
+
+        val entries = mutableListOf<AbilityResultEntry>()
+
+        if (locks.find { it.level == mainLevel } == null) {
+            entries.add(this.getMainOption(dataMap, mainLevel, mode, entries))
+        }
+
+        val subLockCount = locks.count { it.level != mainLevel }
+        when (subLockCount) {
+            0 -> {
+                entries.add(this.getSubOption(dataMap, mainLevel, mode, entries))
+                entries.add(this.getSubOption(dataMap, mainLevel, mode, entries))
+            }
+
+            1 -> entries.add(this.getSubOption(dataMap, mainLevel, mode, entries))
+        }
+
+        entries.sortByDescending { it.level.ordinal }
+        return AbilityResult(
+            id = 0,
+            mode = mode,
+            entries = entries,
+        )
+    }
 }

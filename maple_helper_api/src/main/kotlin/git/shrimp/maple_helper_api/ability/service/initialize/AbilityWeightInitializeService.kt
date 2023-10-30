@@ -1,9 +1,9 @@
 package git.shrimp.maple_helper_api.ability.service.initialize
 
-import git.shrimp.maple_helper_api.ability.entity.AbilityWeight
+import git.shrimp.maple_helper_api.ability.entity.AbilityWeightEntity
 import git.shrimp.maple_helper_api.ability.repository.AbilityOptionRepository
 import git.shrimp.maple_helper_api.ability.repository.AbilityWeightRepository
-import git.shrimp.maple_helper_core.global.model.OptionLevel
+import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
@@ -20,7 +20,7 @@ class AbilityWeightInitializeService(
         if (weight <= 0) return
 
         val option = this.abilityOptionRepository.findById(id).orElseThrow()
-        this.abilityWeightRepository.save(AbilityWeight(level, weight, option))
+        this.abilityWeightRepository.save(AbilityWeightEntity(level, weight, option))
     }
 
     @Transactional
