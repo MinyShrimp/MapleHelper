@@ -6,19 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface AbilityWeightRepository : JpaRepository<AbilityWeightEntity, UUID> {
-    fun findAllByOptionIdOrderByLevel(
-        optionId: Int
-    ): List<AbilityWeightEntity>
-
-    fun findAllByLevel(
-        level: OptionLevel
-    ): List<AbilityWeightEntity>
-
-    fun findAllByOptionIdAndLevel(
-        optionId: Int,
-        level: OptionLevel
-    ): List<AbilityWeightEntity>
-
     fun findOneByOptionIdAndLevel(
         optionId: Int,
         level: OptionLevel

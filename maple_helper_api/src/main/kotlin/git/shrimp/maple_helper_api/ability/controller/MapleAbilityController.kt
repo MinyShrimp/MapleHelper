@@ -1,17 +1,20 @@
 package git.shrimp.maple_helper_api.ability.controller
 
+import git.shrimp.maple_helper_api.ability.dto.OptionRequest
 import git.shrimp.maple_helper_api.ability.service.AbilityOptionCachingService
 import git.shrimp.maple_helper_api.ability.service.AbilityResultService
 import git.shrimp.maple_helper_api.ability.service.initialize.AbilityInitializeService
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import git.shrimp.maple_helper_core.ability.service.MapleAbilityService
-import git.shrimp.maple_helper_core.ability.types.AbilityMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.mono
 import kotlinx.coroutines.withContext
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 
 @RestController
@@ -19,38 +22,44 @@ import reactor.core.publisher.Flux
 class MapleAbilityController(
     private val abilityInitializeService: AbilityInitializeService,
     private val abilityOptionCachingService: AbilityOptionCachingService,
-    private val mapleAbilityService: MapleAbilityService,
-    private val abilityResultService: AbilityResultService
+    private val abilityResultService: AbilityResultService,
+    private val mapleAbilityService: MapleAbilityService
 //    private val mapleAbilitySimulationService: MapleAbilitySimulationService
 ) {
-    @GetMapping
+    private fun <T> getStreamResponse(
+        isStream: Boolean, data: T
+    ): ResponseEntity<T> {
+        return if (isStream) {
+            ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(data)
+        } else {
+            ResponseEntity.ok(data)
+        }
+    }
+
+    @PostMapping
     fun getOption(
-        @RequestParam("count", defaultValue = "1") count: Int,
-        @RequestParam("stream", defaultValue = "false") stream: Boolean,
-        @RequestParam("mode", defaultValue = "NORMAL") mode: AbilityMode,
+        @RequestBody(required = false) req: OptionRequest?
     ): ResponseEntity<Flux<AbilityResult>> {
-        val results = Flux.range(0, count).flatMap {
+        val request = req ?: OptionRequest()
+
+        val results = Flux.range(0, request.count).flatMap {
             mono(Dispatchers.Default) {
                 val dataMap = abilityOptionCachingService.getCachedOptionData()
                 val result = mapleAbilityService.getOption(
                     dataMap = dataMap,
-                    mode = mode
+                    mode = request.mode,
+                    mainLevel = request.mainLevel,
+                    locks = request.locks,
                 )
 
                 withContext(Dispatchers.IO) {
-                    val entity = abilityResultService.saveResult(result)
+                    val entity = abilityResultService.saveResult(result, request)
                     result.copy(id = entity.id)
                 }
             }
         }
 
-        return if (stream) {
-            ResponseEntity.ok()
-                .contentType(MediaType.TEXT_EVENT_STREAM)
-                .body(results)
-        } else {
-            ResponseEntity.ok(results)
-        }
+        return getStreamResponse(request.stream, results)
     }
 //
 //    @GetMapping("/simulate")

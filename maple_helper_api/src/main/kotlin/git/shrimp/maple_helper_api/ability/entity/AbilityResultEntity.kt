@@ -1,6 +1,7 @@
 package git.shrimp.maple_helper_api.ability.entity
 
 import git.shrimp.maple_helper_core.ability.types.AbilityMode
+import git.shrimp.maple_helper_core.global.types.OptionLevel
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -11,10 +12,13 @@ import java.time.LocalDateTime
 @EntityListeners(AuditingEntityListener::class)
 class AbilityResultEntity(
     mode: AbilityMode,
-    resultEntryList: List<AbilityResultEntryEntity>,
+    mainLevel: OptionLevel,
+    entries: List<AbilityResultEntryEntity>,
+    locks: List<AbilityResultLockEntity>
 ) {
     init {
-        resultEntryList.forEach { it.result = this }
+        entries.forEach { it.result = this }
+        locks.forEach { it.result = this }
     }
 
     @Id
@@ -26,8 +30,20 @@ class AbilityResultEntity(
     var mode: AbilityMode = mode
         protected set
 
+    @Column(name = "main_level")
+    var mainLevel: OptionLevel = mainLevel
+        protected set
+
+    @Column(name = "lock_count")
+    var lockCount: Int = locks.size
+        protected set
+
     @OneToMany(mappedBy = "result")
-    var entries: MutableList<AbilityResultEntryEntity> = resultEntryList.toMutableList()
+    var entries: MutableList<AbilityResultEntryEntity> = entries.toMutableList()
+        protected set
+
+    @OneToMany(mappedBy = "result")
+    var locks: MutableList<AbilityResultLockEntity> = locks.toMutableList()
         protected set
 
     @CreatedDate

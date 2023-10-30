@@ -1,10 +1,11 @@
 package git.shrimp.maple_helper_core.ability.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import git.shrimp.maple_helper_core.global.types.OptionLevel
 
 class AbilityResultEntry(
     optionId: Int,
-    val name: String,
+    @JsonIgnore val name: String,
     level: OptionLevel,
     numeric: List<Int>,
 ) : AbilityOption(optionId, level, numeric) {

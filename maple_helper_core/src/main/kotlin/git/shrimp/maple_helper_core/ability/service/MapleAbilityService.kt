@@ -118,6 +118,8 @@ class MapleAbilityService {
         }
 
         val entries = mutableListOf<AbilityResultEntry>()
+        val locksEntries = locks.map { it.to(dataMap) }
+        entries.addAll(locksEntries)
 
         if (locks.find { it.level == mainLevel } == null) {
             entries.add(this.getMainOption(dataMap, mainLevel, mode, entries))
@@ -135,7 +137,6 @@ class MapleAbilityService {
 
         entries.sortByDescending { it.level.ordinal }
         return AbilityResult(
-            id = 0,
             mode = mode,
             entries = entries,
         )

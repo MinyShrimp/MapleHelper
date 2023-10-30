@@ -12,8 +12,4 @@ interface AbilityNumericRepository : JpaRepository<AbilityNumericEntity, UUID> {
         optionId: Int,
         level: OptionLevel
     ): List<AbilityNumericEntity>
-
-    fun findAllByOptionId(
-        optionId: Int
-    ): List<AbilityNumericEntity>
 }
