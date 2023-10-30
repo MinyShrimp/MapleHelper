@@ -45,8 +45,8 @@ class AbilityResultService(
         return AbilityResultEntity(
             mode = result.mode,
             mainLevel = request.mainLevel,
-            entries = entries,
-            locks = locks
+            entries = entries.toSet(),
+            locks = locks.toSet()
         )
     }
 

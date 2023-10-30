@@ -13,8 +13,8 @@ import java.time.LocalDateTime
 class AbilityResultEntity(
     mode: AbilityMode,
     mainLevel: OptionLevel,
-    entries: List<AbilityResultEntryEntity>,
-    locks: List<AbilityResultLockEntity>
+    entries: Set<AbilityResultEntryEntity>,
+    locks: Set<AbilityResultLockEntity>
 ) {
     init {
         entries.forEach { it.result = this }
@@ -39,11 +39,11 @@ class AbilityResultEntity(
         protected set
 
     @OneToMany(mappedBy = "result")
-    var entries: MutableList<AbilityResultEntryEntity> = entries.toMutableList()
+    var entries: MutableSet<AbilityResultEntryEntity> = entries.toMutableSet()
         protected set
 
     @OneToMany(mappedBy = "result")
-    var locks: MutableList<AbilityResultLockEntity> = locks.toMutableList()
+    var locks: MutableSet<AbilityResultLockEntity> = locks.toMutableSet()
         protected set
 
     @CreatedDate

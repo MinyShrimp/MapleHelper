@@ -26,7 +26,7 @@ class AbilityResultEntryEntity(
     var numerics: List<Int> = numerics
         protected set
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "option_id", nullable = false)
     var option: AbilityOptionEntity = option
         protected set
@@ -35,7 +35,7 @@ class AbilityResultEntryEntity(
     var optionId: Int = option.id
         protected set
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "result_id", nullable = false)
     var result: AbilityResultEntity? = null
         set(value) {

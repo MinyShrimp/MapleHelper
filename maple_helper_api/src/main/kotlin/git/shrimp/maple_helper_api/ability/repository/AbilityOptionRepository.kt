@@ -7,6 +7,14 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface AbilityOptionRepository : JpaRepository<AbilityOptionEntity, Int> {
-    @Query("SELECT a FROM AbilityOptionEntity a ORDER BY a.id")
+    @Query(
+        """
+        SELECT a 
+        FROM AbilityOptionEntity a
+        JOIN FETCH a.weights w
+        JOIN FETCH a.numerics n
+        ORDER BY a.id
+    """
+    )
     fun findAllOrderById(): List<AbilityOptionEntity>
 }
