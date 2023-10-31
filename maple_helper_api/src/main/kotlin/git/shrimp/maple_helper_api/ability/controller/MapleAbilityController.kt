@@ -13,6 +13,7 @@ import git.shrimp.maple_helper_core.ability.service.MapleAbilityService
 import git.shrimp.maple_helper_core.ability.service.MapleAbilitySimulationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.mono
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
+import reactor.core.scheduler.Schedulers
 
 @RestController
 @RequestMapping("/api/ability")
@@ -51,13 +53,7 @@ class MapleAbilityController(
 
         val results = Flux.range(0, request.count).flatMap {
             mono(Dispatchers.Default) {
-                val result = mapleAbilityService.getOption(
-                    dataMap = dataMap,
-                    mode = request.mode,
-                    mainLevel = request.mainLevel,
-                    locks = request.locks,
-                )
-
+                val result = mapleAbilityService.getOption(dataMap, request.mainLevel, request.mode, request.locks)
                 withContext(Dispatchers.IO) {
                     val entity = abilityResultService.saveResult(result, request)
                     result.copy(id = entity.id)
@@ -74,23 +70,19 @@ class MapleAbilityController(
     ): ResponseEntity<Flux<SimulationResult>> {
         val request = req ?: SimulationRequest()
         val dataMap = abilityOptionCachingService.getCachedOptionData()
+        val option = SimulationOption(request.count, request.mainLevel, request.mode)
 
-        val option = SimulationOption(
-            mainLevel = request.mainLevel,
-            mode = request.mode,
-            maxCount = request.count
-        )
-
-        val results = mono {
-            val simulationResults = mapleAbilitySimulationService.simulation(dataMap, option, request.targets, request.locks)
-
-            simulationResults.map {
-                withContext(Dispatchers.IO) {
-                    val entity = abilitySimulationService.saveResult(it, request)
-                    it.copy(id = entity.id)
+        val results = Flux.defer {
+            Flux.fromStream {
+                runBlocking {
+                    mapleAbilitySimulationService.simulation(dataMap, option, request.targets, request.locks).stream()
+                        .map {
+                            val entity = abilitySimulationService.saveResult(it, request)
+                            it.copy(id = entity.id)
+                        }
                 }
             }
-        }.flatMapMany { results -> Flux.fromIterable(results) }
+        }.subscribeOn(Schedulers.boundedElastic())
 
         return getStreamResponse(request.stream, results)
     }
