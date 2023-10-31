@@ -1,5 +1,8 @@
-package git.shrimp.maple_helper_api.ability.service.initialize
+package git.shrimp.maple_helper_api.ability.service.data
 
+import git.shrimp.maple_helper_api.ability.service.data.initialize.AbilityNumericInitializeService
+import git.shrimp.maple_helper_api.ability.service.data.initialize.AbilityOptionInitializeService
+import git.shrimp.maple_helper_api.ability.service.data.initialize.AbilityWeightInitializeService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 

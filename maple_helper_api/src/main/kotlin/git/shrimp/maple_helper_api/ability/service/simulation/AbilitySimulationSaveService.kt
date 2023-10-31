@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_api.ability.service
+package git.shrimp.maple_helper_api.ability.service.simulation
 
 import git.shrimp.maple_helper_api.ability.dto.SimulationRequest
 import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
@@ -7,6 +7,7 @@ import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationEn
 import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationLockEntity
 import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationTargetEntity
 import git.shrimp.maple_helper_api.ability.repository.simulation.AbilitySimulationRepository
+import git.shrimp.maple_helper_api.ability.service.data.AbilityOptionCachingService
 import git.shrimp.maple_helper_core.ability.dto.SimulationResult
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -60,6 +61,15 @@ class AbilitySimulationSaveService(
         entity.targets.forEach { it.result = entity }
         entity.locks.forEach { it.result = entity }
         return entity
+    }
+
+    @Transactional
+    fun saveResult(
+        result: SimulationResult,
+        request: SimulationRequest
+    ): AbilitySimulationEntity {
+        val entity = this.convert(result, request)
+        return this.abilitySimulationRepository.save(entity)
     }
 
     @Transactional

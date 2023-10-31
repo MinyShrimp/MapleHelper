@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_api.ability.service
+package git.shrimp.maple_helper_api.ability.service.data
 
 import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
 import git.shrimp.maple_helper_api.ability.repository.data.AbilityOptionRepository

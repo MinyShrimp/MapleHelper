@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_api.ability.service.initialize
+package git.shrimp.maple_helper_api.ability.service.data.initialize
 
 import git.shrimp.maple_helper_api.ability.entity.data.AbilityWeightEntity
 import git.shrimp.maple_helper_api.ability.repository.data.AbilityOptionRepository

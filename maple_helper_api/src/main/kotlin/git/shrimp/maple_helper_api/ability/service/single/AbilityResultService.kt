@@ -1,6 +1,7 @@
-package git.shrimp.maple_helper_api.ability.service
+package git.shrimp.maple_helper_api.ability.service.single
 
 import git.shrimp.maple_helper_api.ability.dto.OptionRequest
+import git.shrimp.maple_helper_api.ability.service.data.AbilityOptionCachingService
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import git.shrimp.maple_helper_core.ability.service.MapleAbilityService
 import kotlinx.coroutines.*
@@ -36,7 +37,7 @@ class AbilityResultService(
         }
     }
 
-    suspend fun getOptionsByFlux(
+    suspend fun getFluxOptions(
         request: OptionRequest,
     ): Flux<AbilityResult> {
         return Flux.range(0, request.count).flatMap {

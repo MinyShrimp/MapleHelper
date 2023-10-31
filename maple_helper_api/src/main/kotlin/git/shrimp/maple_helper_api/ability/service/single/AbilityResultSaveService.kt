@@ -1,4 +1,4 @@
-package git.shrimp.maple_helper_api.ability.service
+package git.shrimp.maple_helper_api.ability.service.single
 
 import git.shrimp.maple_helper_api.ability.dto.OptionRequest
 import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
@@ -6,6 +6,7 @@ import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntity
 import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntryEntity
 import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultLockEntity
 import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultRepository
+import git.shrimp.maple_helper_api.ability.service.data.AbilityOptionCachingService
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service

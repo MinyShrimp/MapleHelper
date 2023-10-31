@@ -2,9 +2,9 @@ package git.shrimp.maple_helper_api.ability.controller
 
 import git.shrimp.maple_helper_api.ability.dto.OptionRequest
 import git.shrimp.maple_helper_api.ability.dto.SimulationRequest
-import git.shrimp.maple_helper_api.ability.service.AbilityResultService
-import git.shrimp.maple_helper_api.ability.service.AbilitySimulationService
-import git.shrimp.maple_helper_api.ability.service.initialize.AbilityInitializeService
+import git.shrimp.maple_helper_api.ability.service.data.AbilityInitializeService
+import git.shrimp.maple_helper_api.ability.service.simulation.AbilitySimulationService
+import git.shrimp.maple_helper_api.ability.service.single.AbilityResultService
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import git.shrimp.maple_helper_core.ability.dto.SimulationOption
 import git.shrimp.maple_helper_core.ability.dto.SimulationResult
@@ -39,7 +39,7 @@ class MapleAbilityController(
     ): ResponseEntity<Flux<AbilityResult>> {
         val request = req ?: OptionRequest()
         val results = when (request.stream) {
-            true -> this.abilityResultService.getOptionsByFlux(request)
+            true -> this.abilityResultService.getFluxOptions(request)
             false -> Flux.fromIterable(this.abilityResultService.getOptions(request))
         }
 
@@ -52,7 +52,10 @@ class MapleAbilityController(
     ): ResponseEntity<Flux<SimulationResult>> {
         val request = req ?: SimulationRequest()
         val option = SimulationOption(request.count, request.mainLevel, request.mode)
-        val results = Flux.fromIterable(this.abilitySimulationService.simulation(option, request))
+        val results = when (request.stream) {
+            true -> this.abilitySimulationService.getSimulationFluxResult(option, request)
+            false -> Flux.fromIterable(this.abilitySimulationService.getSimulationResult(option, request))
+        }
 
         return getStreamResponse(request.stream, results)
     }

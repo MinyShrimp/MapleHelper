@@ -15,10 +15,10 @@ class MapleAbilitySimulationService(
     private val mapleAbilityService: MapleAbilityService
 ) {
     companion object {
-        private const val MAX_COUNT = 100000
+        const val MAX_COUNT = 100000
     }
 
-    private suspend fun simulateOne(
+    private suspend fun run(
         dataMap: OptionDataMap,
         option: SimulationOption,
         targets: List<AbilityResultEntry>,
@@ -31,6 +31,20 @@ class MapleAbilitySimulationService(
             }
         }
         return null
+    }
+
+    suspend fun simulateOne(
+        dataMap: OptionDataMap,
+        option: SimulationOption,
+        targets: List<AbilityOption>,
+        locks: List<AbilityOption> = listOf()
+    ): SimulationResult? {
+        if (targets.count() + locks.count() > 2) {
+            throw Exception("Lock and Target count must be less than 2")
+        }
+
+        val targetEntries = targets.map { it.to(dataMap) }
+        return run(dataMap, option, targetEntries, locks)
     }
 
     suspend fun simulate(
@@ -46,7 +60,7 @@ class MapleAbilitySimulationService(
         val targetEntries = targets.map { it.to(dataMap) }
         return coroutineScope {
             List(option.count) {
-                async { simulateOne(dataMap, option, targetEntries, locks) }
+                async { run(dataMap, option, targetEntries, locks) }
             }.awaitAll().filterNotNull()
         }
     }
