@@ -9,6 +9,8 @@ import git.shrimp.maple_helper_core.ability.mock.repository.AbilityWeightMockRep
 import git.shrimp.maple_helper_core.ability.types.AbilityMode
 import git.shrimp.maple_helper_core.ability.types.OptionDataMap
 import git.shrimp.maple_helper_core.global.types.OptionLevel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
@@ -28,15 +30,15 @@ open class MapleAbilityServiceTest {
     private val mapleAbilitySimulationService = MapleAbilitySimulationService(mapleAbilityService)
 
     @Test
-    fun normalTest() = runBlocking {
+    fun normalTest() = runBlocking<Unit> {
         println("========================================")
-        for (index in 0..100) {
-            val result = mapleAbilityService.getOption(
-                dataMap = dataMap,
-                mainLevel = OptionLevel.LEGENDARY,
-                mode = AbilityMode.NORMAL
-            )
-            result.entries.forEach(::println)
+
+        val results = List(100) {
+            async { mapleAbilityService.getOption(dataMap, OptionLevel.LEGENDARY, AbilityMode.NORMAL) }
+        }.awaitAll()
+
+        results.forEach {
+            it.entries.forEach(::println)
             println("========================================")
         }
     }
@@ -44,13 +46,18 @@ open class MapleAbilityServiceTest {
     @Test
     fun lockTest() = runBlocking {
         println("========================================")
-        for (index in 0..100) {
-            val result = mapleAbilityService.getOption(
-                dataMap = dataMap,
-                mainLevel = OptionLevel.LEGENDARY,
-                locks = listOf(AbilityOption(9, OptionLevel.UNIQUE, listOf(20)))
-            )
-            result.entries.forEach(::println)
+        val results = List(100) {
+            async {
+                mapleAbilityService.getOption(
+                    dataMap = dataMap,
+                    mainLevel = OptionLevel.LEGENDARY,
+                    locks = listOf(AbilityOption(9, OptionLevel.UNIQUE, listOf(20)))
+                )
+            }
+        }.awaitAll()
+
+        results.forEach {
+            it.entries.forEach(::println)
             println("========================================")
         }
     }
@@ -58,9 +65,9 @@ open class MapleAbilityServiceTest {
     @Test
     fun simulationTest() = runBlocking {
         val targetDto = AbilityOption(9, OptionLevel.UNIQUE, listOf(20))
-        val option = SimulationOption(10, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
+        val option = SimulationOption(100000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
-        val simulationResults = mapleAbilitySimulationService.simulation(dataMap, option, listOf(targetDto))
+        val simulationResults = mapleAbilitySimulationService.simulate(dataMap, option, listOf(targetDto))
 
         val total = simulationResults.size
         val minCount = simulationResults.minOf { it.count }

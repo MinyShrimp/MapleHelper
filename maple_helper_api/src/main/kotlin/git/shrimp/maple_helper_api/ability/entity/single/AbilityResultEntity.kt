@@ -13,8 +13,8 @@ import java.time.LocalDateTime
 class AbilityResultEntity(
     mode: AbilityMode,
     mainLevel: OptionLevel,
-    entries: Set<AbilityResultEntryEntity>,
-    locks: Set<AbilityResultLockEntity>
+    entries: Iterable<AbilityResultEntryEntity>,
+    locks: Iterable<AbilityResultLockEntity>
 ) {
     init {
         entries.forEach { it.result = this }
@@ -35,7 +35,7 @@ class AbilityResultEntity(
         protected set
 
     @Column(name = "lock_count")
-    var lockCount: Int = locks.size
+    var lockCount: Int = locks.count()
         protected set
 
     @OneToMany(mappedBy = "result")

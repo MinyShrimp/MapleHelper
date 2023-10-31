@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":maple_helper_core"))
 
     // kotlin
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")

@@ -14,31 +14,26 @@ import org.springframework.stereotype.Service
 class MapleAbilitySimulationService(
     private val mapleAbilityService: MapleAbilityService
 ) {
-    private suspend fun simulate(
+    companion object {
+        private const val MAX_COUNT = 100000
+    }
+
+    private suspend fun simulateOne(
         dataMap: OptionDataMap,
         option: SimulationOption,
         targets: List<AbilityResultEntry>,
         locks: List<AbilityOption>
-    ): List<SimulationResult> {
-        val simulationResults = mutableListOf<SimulationResult>()
-        for (index in 0 until option.maxCount) {
-            run loop@{
-                for (c in 0 until 100000) {
-                    val result = this.mapleAbilityService.getOption(dataMap, option.mainLevel, option.mode, locks)
-                    val entries = result.entries
-                    if (entries.any { targets.contains(it) }) {
-                        simulationResults.add(SimulationResult(c, option.mode, entries))
-                        return@loop
-                    }
-                }
-                simulationResults.add(SimulationResult(option.maxCount, option.mode, listOf()))
+    ): SimulationResult? {
+        List(MAX_COUNT) { c ->
+            val result = mapleAbilityService.getOption(dataMap, option.mainLevel, option.mode, locks)
+            if (result.entries.any { targets.contains(it) }) {
+                return SimulationResult(c, option.mode, result.entries)
             }
         }
-
-        return simulationResults.toList()
+        return null
     }
 
-    suspend fun simulation(
+    suspend fun simulate(
         dataMap: OptionDataMap,
         option: SimulationOption,
         targets: List<AbilityOption>,
@@ -50,13 +45,9 @@ class MapleAbilitySimulationService(
 
         val targetEntries = targets.map { it.to(dataMap) }
         return coroutineScope {
-            val chunkCount = 500
-            val chunks = (0 until option.maxCount step chunkCount).map { index ->
-                val currentChunkSize = if (index + chunkCount > option.maxCount) option.maxCount - index else chunkCount
-                async { simulate(dataMap, option.copy(maxCount = currentChunkSize), targetEntries, locks) }
-            }
-
-            awaitAll(*chunks.toTypedArray()).flatten()
+            List(option.count) {
+                async { simulateOne(dataMap, option, targetEntries, locks) }
+            }.awaitAll().filterNotNull()
         }
     }
 }
