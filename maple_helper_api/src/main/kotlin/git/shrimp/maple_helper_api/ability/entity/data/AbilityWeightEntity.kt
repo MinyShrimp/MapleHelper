@@ -12,7 +12,6 @@ import java.util.*
         Index(name = "ability_numeric_level_index", columnList = "level")
     ]
 )
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 class AbilityWeightEntity(
     level: OptionLevel,
     weight: Int,

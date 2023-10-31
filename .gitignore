@@ -12,6 +12,7 @@ application.properties
 ### Database ###
 db/config/
 db/mysql/
+db/sqls/
 
 ### STS ###
 .apt_generated
