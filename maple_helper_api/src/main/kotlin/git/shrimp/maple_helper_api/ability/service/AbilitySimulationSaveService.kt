@@ -6,10 +6,7 @@ import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationEn
 import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationEntryEntity
 import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationLockEntity
 import git.shrimp.maple_helper_api.ability.entity.simulation.AbilitySimulationTargetEntity
-import git.shrimp.maple_helper_api.ability.repository.simulation.AbilitySimulationEntryRepository
-import git.shrimp.maple_helper_api.ability.repository.simulation.AbilitySimulationLockRepository
 import git.shrimp.maple_helper_api.ability.repository.simulation.AbilitySimulationRepository
-import git.shrimp.maple_helper_api.ability.repository.simulation.AbilitySimulationTargetRepository
 import git.shrimp.maple_helper_core.ability.dto.SimulationResult
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -18,9 +15,6 @@ import org.springframework.stereotype.Service
 class AbilitySimulationSaveService(
     abilityOptionCachingService: AbilityOptionCachingService,
     private val abilitySimulationRepository: AbilitySimulationRepository,
-    private val abilitySimulationEntryRepository: AbilitySimulationEntryRepository,
-    private val abilitySimulationTargetRepository: AbilitySimulationTargetRepository,
-    private val abilitySimulationLockRepository: AbilitySimulationLockRepository,
 ) {
     private val dataMap = abilityOptionCachingService.getCachedOptionData()
 
@@ -35,7 +29,7 @@ class AbilitySimulationSaveService(
                 level = entry.level,
                 numerics = entry.numeric
             )
-        }.toSet()
+        }
         val targets = request.targets.map { target ->
             val option = dataMap[target.level]!![target.optionId] ?: throw Exception("Invalid option id")
             AbilitySimulationTargetEntity(
@@ -43,7 +37,7 @@ class AbilitySimulationSaveService(
                 level = target.level,
                 numerics = target.numeric
             )
-        }.toSet()
+        }
         val locks = request.locks.map { lock ->
             val option = dataMap[lock.level]!![lock.optionId] ?: throw Exception("Invalid option id")
             AbilitySimulationLockEntity(
@@ -51,9 +45,9 @@ class AbilitySimulationSaveService(
                 level = lock.level,
                 numerics = lock.numeric
             )
-        }.toSet()
+        }
 
-        return AbilitySimulationEntity(
+        val entity = AbilitySimulationEntity(
             count = result.count,
             mode = request.mode,
             mainLevel = request.mainLevel,
@@ -61,6 +55,11 @@ class AbilitySimulationSaveService(
             targets = targets,
             locks = locks
         )
+
+        entity.entries.forEach { it.result = entity }
+        entity.targets.forEach { it.result = entity }
+        entity.locks.forEach { it.result = entity }
+        return entity
     }
 
     @Transactional
@@ -69,14 +68,6 @@ class AbilitySimulationSaveService(
         request: SimulationRequest
     ): List<AbilitySimulationEntity> {
         val entities = results.map { result -> this.convert(result, request) }
-
-        val savedEntities = this.abilitySimulationRepository.saveAll(entities)
-        entities.forEach { entity ->
-            this.abilitySimulationEntryRepository.saveAll(entity.entries)
-            this.abilitySimulationTargetRepository.saveAll(entity.targets)
-            this.abilitySimulationLockRepository.saveAll(entity.locks)
-        }
-
-        return savedEntities
+        return this.abilitySimulationRepository.saveAll(entities)
     }
 }

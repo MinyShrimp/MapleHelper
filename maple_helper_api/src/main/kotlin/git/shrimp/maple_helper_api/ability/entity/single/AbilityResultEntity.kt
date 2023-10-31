@@ -16,11 +16,6 @@ class AbilityResultEntity(
     entries: Iterable<AbilityResultEntryEntity>,
     locks: Iterable<AbilityResultLockEntity>
 ) {
-    init {
-        entries.forEach { it.result = this }
-        locks.forEach { it.result = this }
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0
@@ -38,11 +33,11 @@ class AbilityResultEntity(
     var lockCount: Int = locks.count()
         protected set
 
-    @OneToMany(mappedBy = "result")
+    @OneToMany(mappedBy = "result", cascade = [CascadeType.ALL])
     var entries: MutableSet<AbilityResultEntryEntity> = entries.toMutableSet()
         protected set
 
-    @OneToMany(mappedBy = "result")
+    @OneToMany(mappedBy = "result", cascade = [CascadeType.ALL])
     var locks: MutableSet<AbilityResultLockEntity> = locks.toMutableSet()
         protected set
 

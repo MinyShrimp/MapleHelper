@@ -5,8 +5,6 @@ import git.shrimp.maple_helper_api.ability.entity.data.AbilityOptionEntity
 import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntity
 import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultEntryEntity
 import git.shrimp.maple_helper_api.ability.entity.single.AbilityResultLockEntity
-import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultEntryRepository
-import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultLockRepository
 import git.shrimp.maple_helper_api.ability.repository.single.AbilityResultRepository
 import git.shrimp.maple_helper_core.ability.dto.AbilityResult
 import jakarta.transaction.Transactional
@@ -15,9 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class AbilityResultSaveService(
     abilityOptionCachingService: AbilityOptionCachingService,
-    private val abilityResultRepository: AbilityResultRepository,
-    private val abilityResultEntryRepository: AbilityResultEntryRepository,
-    private val abilityResultLockRepository: AbilityResultLockRepository,
+    private val abilityResultRepository: AbilityResultRepository
 ) {
     private val dataMap = abilityOptionCachingService.getCachedOptionData()
 
@@ -42,12 +38,16 @@ class AbilityResultSaveService(
             )
         }
 
-        return AbilityResultEntity(
+        val entity = AbilityResultEntity(
             mode = result.mode,
             mainLevel = request.mainLevel,
             entries = entries,
             locks = locks
         )
+
+        entity.entries.forEach { it.result = entity }
+        entity.locks.forEach { it.result = entity }
+        return entity
     }
 
     @Transactional
@@ -56,12 +56,7 @@ class AbilityResultSaveService(
         request: OptionRequest
     ): AbilityResultEntity {
         val entity = this.convert(result, request)
-
-        val savedEntity = this.abilityResultRepository.save(entity)
-        this.abilityResultEntryRepository.saveAll(entity.entries)
-        this.abilityResultLockRepository.saveAll(entity.locks)
-
-        return savedEntity
+        return this.abilityResultRepository.save(entity)
     }
 
     @Transactional
@@ -70,11 +65,6 @@ class AbilityResultSaveService(
         request: OptionRequest
     ): List<AbilityResultEntity> {
         val entities = results.map { this.convert(it, request) }
-
-        val savedEntities = this.abilityResultRepository.saveAll(entities)
-        this.abilityResultEntryRepository.saveAll(savedEntities.flatMap { it.entries })
-        this.abilityResultLockRepository.saveAll(savedEntities.flatMap { it.locks })
-
-        return savedEntities
+        return this.abilityResultRepository.saveAll(entities)
     }
 }

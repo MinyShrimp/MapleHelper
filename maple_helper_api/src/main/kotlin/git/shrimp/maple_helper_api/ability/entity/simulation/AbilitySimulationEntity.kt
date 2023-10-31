@@ -14,9 +14,9 @@ class AbilitySimulationEntity(
     count: Int,
     mode: AbilityMode,
     mainLevel: OptionLevel,
-    entries: Set<AbilitySimulationEntryEntity>,
-    targets: Set<AbilitySimulationTargetEntity>,
-    locks: Set<AbilitySimulationLockEntity>
+    entries: Iterable<AbilitySimulationEntryEntity>,
+    targets: Iterable<AbilitySimulationTargetEntity>,
+    locks: Iterable<AbilitySimulationLockEntity>
 ) {
     init {
         entries.forEach { it.result = this }
@@ -41,23 +41,23 @@ class AbilitySimulationEntity(
     var mainLevel: OptionLevel = mainLevel
         protected set
 
-    @OneToMany(mappedBy = "result")
+    @OneToMany(mappedBy = "result", cascade = [CascadeType.ALL])
     var entries: MutableSet<AbilitySimulationEntryEntity> = entries.toMutableSet()
         protected set
 
     @Column(name = "target_count")
-    var targetCount: Int = targets.size
+    var targetCount: Int = targets.count()
         protected set
 
-    @OneToMany(mappedBy = "result")
+    @OneToMany(mappedBy = "result", cascade = [CascadeType.ALL])
     var targets: MutableSet<AbilitySimulationTargetEntity> = targets.toMutableSet()
         protected set
 
     @Column(name = "lock_count")
-    var lockCount: Int = locks.size
+    var lockCount: Int = locks.count()
         protected set
 
-    @OneToMany(mappedBy = "result")
+    @OneToMany(mappedBy = "result", cascade = [CascadeType.ALL])
     var locks: MutableSet<AbilitySimulationLockEntity> = locks.toMutableSet()
         protected set
 

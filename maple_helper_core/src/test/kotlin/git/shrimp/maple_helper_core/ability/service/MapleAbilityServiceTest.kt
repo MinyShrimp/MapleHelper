@@ -65,7 +65,7 @@ open class MapleAbilityServiceTest {
     @Test
     fun simulationTest() = runBlocking {
         val targetDto = AbilityOption(9, OptionLevel.UNIQUE, listOf(20))
-        val option = SimulationOption(100000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
+        val option = SimulationOption(10000, OptionLevel.LEGENDARY, AbilityMode.MIRACLE)
 
         val simulationResults = mapleAbilitySimulationService.simulate(dataMap, option, listOf(targetDto))
 

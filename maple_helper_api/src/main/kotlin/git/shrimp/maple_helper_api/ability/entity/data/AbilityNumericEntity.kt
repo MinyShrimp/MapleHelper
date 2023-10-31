@@ -21,7 +21,7 @@ class AbilityNumericEntity(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID = UUID.randomUUID()
+    lateinit var id: UUID
         protected set
 
     @Column(name = "level", nullable = false)

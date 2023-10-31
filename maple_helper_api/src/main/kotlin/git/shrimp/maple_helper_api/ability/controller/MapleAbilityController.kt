@@ -38,11 +38,9 @@ class MapleAbilityController(
         @RequestBody(required = false) req: OptionRequest?
     ): ResponseEntity<Flux<AbilityResult>> {
         val request = req ?: OptionRequest()
-
-        val results = if (request.stream) {
-            Flux.fromIterable(this.abilityResultService.getOptions(request))
-        } else {
-            this.abilityResultService.getOptionsByFlux(request)
+        val results = when (request.stream) {
+            true -> this.abilityResultService.getOptionsByFlux(request)
+            false -> Flux.fromIterable(this.abilityResultService.getOptions(request))
         }
 
         return getStreamResponse(request.stream, results)

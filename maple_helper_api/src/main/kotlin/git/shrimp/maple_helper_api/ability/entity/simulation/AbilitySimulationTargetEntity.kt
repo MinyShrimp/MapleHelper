@@ -15,7 +15,7 @@ class AbilitySimulationTargetEntity(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID = UUID.randomUUID()
+    lateinit var id: UUID
         protected set
 
     @Column(name = "level", nullable = false)
@@ -38,13 +38,5 @@ class AbilitySimulationTargetEntity(
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "simulation_id", nullable = false)
-    var result: AbilitySimulationEntity? = null
-        set(value) {
-            field = value
-            this.resultId = value?.id
-        }
-
-    @Column(name = "simulation_id", nullable = false, insertable = false, updatable = false)
-    var resultId: Int? = null
-        protected set
+    lateinit var result: AbilitySimulationEntity
 }
